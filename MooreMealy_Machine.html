@@ -1,0 +1,2487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moore vs Mealy Machine Visualizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0c2461, #1e3799);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Back Button Styles */
+        .back-button-container {
+            max-width: 1800px;
+            margin: 0 auto 20px auto;
+            text-align: right;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #8e44ad, #9b59b6);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(142, 68, 173, 0.3);
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(142, 68, 173, 0.4);
+        }
+
+        .back-btn i {
+            font-size: 18px;
+        }
+
+        .container {
+            display: flex;
+            max-width: 1800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            min-height: 90vh;
+        }
+
+        /* Left Sidebar Styles */
+        .sidebar {
+            width: 320px;
+            background: linear-gradient(180deg, #2c3e50, #34495e);
+            padding: 30px 20px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            color: #ecf0f1;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .logo p {
+            font-size: 14px;
+            color: #bdc3c7;
+            line-height: 1.5;
+        }
+
+        .nav-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .nav-btn {
+            padding: 16px 20px;
+            background: rgba(52, 152, 219, 0.1);
+            border: 2px solid #3498db;
+            border-radius: 12px;
+            color: #ecf0f1;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-btn i {
+            font-size: 18px;
+        }
+
+        .nav-btn:hover {
+            background: #3498db;
+            transform: translateX(5px);
+        }
+
+        .nav-btn.active {
+            background: #3498db;
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
+        }
+
+        .input-section {
+            margin-top: 10px;
+            background: rgba(44, 62, 80, 0.7);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .input-section h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #ecf0f1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #bdc3c7;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            background: #2c3e50;
+            color: white;
+            font-size: 16px;
+        }
+
+        .input-group textarea {
+            height: 100px;
+            resize: vertical;
+            font-family: monospace;
+        }
+
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+            outline: none;
+            border-color: #1abc9c;
+            box-shadow: 0 0 10px rgba(26, 188, 156, 0.5);
+        }
+
+        .btn-run {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #1abc9c, #16a085);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-run:hover {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(26, 188, 156, 0.4);
+        }
+
+        .machine-selector {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .machine-btn {
+            flex: 1;
+            padding: 12px;
+            background: rgba(52, 152, 219, 0.2);
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            color: #ecf0f1;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .machine-btn.active {
+            background: #3498db;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+        }
+
+        /* Right Content Area Styles */
+        .content-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #3498db;
+        }
+
+        .content-header h2 {
+            font-size: 28px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .content-header h2 i {
+            color: #3498db;
+        }
+
+        .content-container {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .content-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .info-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid #3498db;
+        }
+
+        .info-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-section p {
+            color: #555;
+            line-height: 1.7;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .highlight {
+            background: #e8f4fc;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: #2980b9;
+            font-weight: 600;
+        }
+
+        .moore-highlight {
+            background: #e8f4fc;
+            color: #2980b9;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .mealy-highlight {
+            background: #e8f6f3;
+            color: #27ae60;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* Visualization Containers */
+        .visualization-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .visualization-box {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid #3498db;
+        }
+
+        .visualization-box h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Truth Table Styles */
+        .truth-table-container {
+            overflow-x: auto;
+        }
+
+        .truth-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .truth-table th {
+            background: #3498db;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .truth-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .truth-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .truth-table tr:hover {
+            background: #e8f4fc;
+        }
+
+        /* Diagram Containers */
+        .diagram-container {
+            height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            margin-top: 15px;
+            background: #f9f9f9;
+            overflow: hidden;
+        }
+
+        .state-diagram {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .state-circle {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .state-circle.moore {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .state-circle.mealy {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+        }
+
+        .state-circle.initial {
+            border: 4px solid #f39c12;
+        }
+
+        .state-circle:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .state-label {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .state-output {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .transition-arrow {
+            position: absolute;
+            height: 4px;
+            background: #7f8c8d;
+            transform-origin: 0 0;
+            z-index: 1;
+        }
+
+        .transition-label {
+            position: absolute;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 2;
+        }
+
+        /* Timing Diagram Styles */
+        .timing-diagram {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            padding: 20px;
+        }
+
+        .signal-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .signal-label {
+            width: 100px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .signal-wave {
+            flex: 1;
+            height: 60px;
+            position: relative;
+            border-bottom: 2px solid #95a5a6;
+        }
+
+        .wave-segment {
+            position: absolute;
+            height: 100%;
+            border-right: 2px solid #95a5a6;
+            top: 0;
+        }
+
+        .wave-value {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .wave-high {
+            background: #3498db;
+        }
+
+        .clock-wave .wave-high {
+            background: #3498db;
+        }
+
+        .input-wave .wave-high {
+            background: #2ecc71;
+        }
+
+        .output-wave .wave-high {
+            background: #e74c3c;
+        }
+
+        /* Circuit Diagram Styles - Textbook Style */
+        .circuit-diagram-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: white;
+            padding: 20px;
+        }
+
+        .circuit-component {
+            position: absolute;
+            border: 2px solid #333;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        .flip-flop {
+            width: 120px;
+            height: 80px;
+            border-radius: 5px;
+            background: #f8f9fa;
+        }
+
+        .logic-gate {
+            width: 60px;
+            height: 60px;
+            border-radius: 5px;
+            background: #fff8e1;
+        }
+
+        .and-gate {
+            border-radius: 0 0 30px 30px;
+        }
+
+        .or-gate {
+            border-radius: 0 0 15px 15px;
+        }
+
+        .xor-gate {
+            border-radius: 50%;
+        }
+
+        .input-port {
+            position: absolute;
+            width: 40px;
+            height: 20px;
+            background: #2ecc71;
+            border: 1px solid #27ae60;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            line-height: 20px;
+        }
+
+        .output-port {
+            position: absolute;
+            width: 40px;
+            height: 20px;
+            background: #e74c3c;
+            border: 1px solid #c0392b;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            line-height: 20px;
+        }
+
+        .wire {
+            position: absolute;
+            background: #333;
+            z-index: 1;
+        }
+
+        .wire-horizontal {
+            height: 3px;
+        }
+
+        .wire-vertical {
+            width: 3px;
+        }
+
+        .wire-label {
+            position: absolute;
+            background: white;
+            padding: 2px 5px;
+            font-size: 12px;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+            z-index: 2;
+        }
+
+        /* Calculation Steps */
+        .calculation-steps {
+            background: #e8f4fc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .step {
+            display: flex;
+            margin-bottom: 15px;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            background: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+
+        .karnaugh-map {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .karnaugh-map th, .karnaugh-map td {
+            border: 2px solid #7f8c8d;
+            padding: 10px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .karnaugh-map th {
+            background: #3498db;
+            color: white;
+        }
+
+        .karnaugh-map .cell-highlight {
+            background: #a3e4d7;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .visualization-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-header h2 {
+                font-size: 22px;
+            }
+            
+            .visualization-box {
+                padding: 15px;
+            }
+            
+            .diagram-container {
+                height: 250px;
+            }
+            
+            .back-button-container {
+                text-align: center;
+            }
+            
+            .back-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Back Button Container at Top -->
+    <div class="back-button-container">
+        <button class="back-btn" id="backToGateVisualization">
+            <i class="fas fa-arrow-left"></i> Back to Gate Visualization
+        </button>
+    </div>
+    
+    <div class="container">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1><i class="fas fa-project-diagram"></i> FSM Visualizer</h1>
+                <p>Interactive Moore & Mealy Machine Simulator for Digital Electronics</p>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="nav-btn active" data-content="truth-table">
+                    <i class="fas fa-table"></i> Truth Table
+                </button>
+                <button class="nav-btn" data-content="state-diagram">
+                    <i class="fas fa-sitemap"></i> State Diagram
+                </button>
+                <button class="nav-btn" data-content="timing-diagram">
+                    <i class="fas fa-wave-square"></i> Timing Diagram
+                </button>
+                <button class="nav-btn" data-content="circuit-diagram">
+                    <i class="fas fa-microchip"></i> Circuit Diagram
+                </button>
+                <button class="nav-btn" data-content="comparison">
+                    <i class="fas fa-balance-scale"></i> Comparison
+                </button>
+            </div>
+            
+            <div class="input-section">
+                <h3><i class="fas fa-sliders-h"></i> Machine Configuration</h3>
+                
+                <div class="input-group">
+                    <label for="machineType"><i class="fas fa-cogs"></i> Machine Type</label>
+                    <select id="machineType">
+                        <option value="parity">Parity Checker</option>
+                        <option value="sequence">Sequence Detector (101)</option>
+                        <option value="custom">Custom Machine</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="inputSequence"><i class="fas fa-keyboard"></i> Input Sequence (Binary)</label>
+                    <input type="text" id="inputSequence" value="100" maxlength="20" placeholder="Enter 0s and 1s">
+                </div>
+                
+                <div class="input-group" id="customConfig" style="display: none;">
+                    <label for="customTable"><i class="fas fa-edit"></i> Custom Transition Table (JSON)</label>
+                    <textarea id="customTable" placeholder='{"type":"moore","states":["S0","S1"],"initial":"S0","outputs":{"S0":"0","S1":"1"},"transitions":{"S0,0":"S0","S0,1":"S1","S1,0":"S1","S1,1":"S0"}}'></textarea>
+                </div>
+                
+                <div class="machine-selector">
+                    <button class="machine-btn active" data-machine="moore">Moore Machine</button>
+                    <button class="machine-btn" data-machine="mealy">Mealy Machine</button>
+                </div>
+                
+                <button class="btn-run" id="runSimulation">
+                    <i class="fas fa-play-circle"></i> Run Simulation
+                </button>
+                
+                <button class="btn-run" id="resetSimulation" style="background: linear-gradient(135deg, #e74c3c, #c0392b); margin-top: 10px;">
+                    <i class="fas fa-redo"></i> Reset Simulation
+                </button>
+            </div>
+            
+            <div style="margin-top: auto; padding-top: 20px; font-size: 12px; color: #95a5a6; text-align: center;">
+                <p><i class="fas fa-graduation-cap"></i> Digital Electronics - FSM Design</p>
+                <p>Input-driven simulation</p>
+            </div>
+        </div>
+        
+        <!-- Right Content Area -->
+        <div class="content-area">
+            <div class="content-header">
+                <h2><i class="fas fa-table"></i> Truth Table Analysis</h2>
+                <div style="color: #7f8c8d; font-size: 16px;">
+                    Current: <span id="currentMachine" class="highlight">Moore Machine</span> | 
+                    Type: <span id="currentType" class="highlight">Parity Checker</span> |
+                    Input: <span id="currentInput" class="highlight">100</span>
+                </div>
+            </div>
+            
+            <!-- Truth Table Content -->
+            <div class="content-container active" id="truth-table">
+                <div class="info-section">
+                    <h3><i class="fas fa-info-circle"></i> Truth Table Explanation</h3>
+                    <p>This shows the complete state transition table for the <span class="moore-highlight">Moore Machine</span> and <span class="mealy-highlight">Mealy Machine</span> implementations based on your selection.</p>
+                    <p><strong>Current Simulation:</strong> The simulation runs with <strong>your input sequence only</strong>. No predefined sequences are used.</p>
+                </div>
+                
+                <div class="visualization-container">
+                    <div class="visualization-box">
+                        <h3><i class="fas fa-table"></i> State Transition Table</h3>
+                        <div class="truth-table-container">
+                            <table class="truth-table" id="mooreTruthTable">
+                                <!-- Moore truth table will be generated here -->
+                            </table>
+                            <table class="truth-table" id="mealyTruthTable" style="display: none;">
+                                <!-- Mealy truth table will be generated here -->
+                            </table>
+                        </div>
+                        
+                        <div class="calculation-steps" id="calculationSteps">
+                            <!-- Calculation steps will be generated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="visualization-box">
+                        <h3><i class="fas fa-lightbulb"></i> Machine Logic</h3>
+                        <div style="padding: 15px;">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <strong>State Encoding:</strong> 
+                                    <div id="stateEncodingInfo">
+                                        <!-- State encoding info will be generated here -->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <strong>Output Logic:</strong>
+                                    <div id="outputLogicInfo">
+                                        <!-- Output logic info will be generated here -->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <strong>Next State Logic:</strong> Common to both machines:
+                                    <p>Next State = f(Current State, Input)</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 20px; background: #e8f6f3; padding: 15px; border-radius: 10px; border-left: 4px solid #1abc9c;">
+                            <h4><i class="fas fa-bolt"></i> Current Simulation Result</h4>
+                            <div style="margin-top: 10px;">
+                                <p><strong>Input Sequence:</strong> <span id="resultInput" style="font-family: monospace;">100</span></p>
+                                <p><strong>Output Sequence:</strong> <span id="resultOutput" style="font-family: monospace;"></span></p>
+                                <p><strong>Final State:</strong> <span id="resultState" class="highlight"></span></p>
+                                <p><strong>Result:</strong> <span id="resultCount" class="highlight"></span></p>
+                                <p><strong>Details:</strong> <span id="detectionPositions" style="font-family: monospace;"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- State Diagram Content -->
+            <div class="content-container" id="state-diagram">
+                <div class="info-section">
+                    <h3><i class="fas fa-sitemap"></i> State Diagram Explanation</h3>
+                    <p>The state diagram shows all possible states and transitions for the selected machine. <span class="moore-highlight">Moore Machine</span> outputs are shown inside states, while <span class="mealy-highlight">Mealy Machine</span> outputs are shown on transitions as "input/output".</p>
+                    <p><strong>Your Input Path:</strong> The path taken by your specific input sequence is highlighted.</p>
+                </div>
+                
+                <div class="visualization-container">
+                    <div class="visualization-box">
+                        <h3><i class="fas fa-project-diagram"></i> State Diagram Visualization</h3>
+                        <div class="diagram-container">
+                            <div class="state-diagram" id="stateDiagram">
+                                <!-- State diagram will be drawn here -->
+                            </div>
+                        </div>
+                        <div style="margin-top: 20px; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center;">
+                                <div style="width: 20px; height: 20px; background: #3498db; border-radius: 50%; margin-right: 10px;"></div>
+                                <span>Moore State</span>
+                            </div>
+                            <div style="display: flex; align-items: center;">
+                                <div style="width: 20px; height: 20px; background: #2ecc71; border-radius: 50%; margin-right: 10px;"></div>
+                                <span>Mealy State</span>
+                            </div>
+                            <div style="display: flex; align-items: center;">
+                                <div style="width: 20px; height: 20px; border: 3px solid #f39c12; border-radius: 50%; margin-right: 10px;"></div>
+                                <span>Initial State</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="visualization-box">
+                        <h3><i class="fas fa-map-signs"></i> State Transition Path</h3>
+                        <div id="stateTransitionPath" style="padding: 15px; background: #f9f9f9; border-radius: 10px; margin-top: 10px;">
+                            <h4>Your Input Sequence Path:</h4>
+                            <div id="transitionPath" style="margin-top: 15px; line-height: 2; font-family: monospace;">
+                                <!-- Transition path will be shown here -->
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 25px;">
+                            <h4><i class="fas fa-list-ol"></i> State Analysis</h4>
+                            <div id="stateInfo" style="margin-top: 15px;">
+                                <!-- State information will be shown here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Timing Diagram Content -->
+            <div class="content-container" id="timing-diagram">
+                <div class="info-section">
+                    <h3><i class="fas fa-wave-square"></i> Timing Diagram Explanation</h3>
+                    <p>Timing diagrams illustrate the temporal relationship between clock, input, state, and output signals for your specific input sequence.</p>
+                    <p><strong>Your Sequence:</strong> The diagram shows exactly how your input "100" is processed over time.</p>
+                </div>
+                
+                <div class="visualization-container">
+                    <div class="visualization-box">
+                        <h3><i class="fas fa-chart-line"></i> Timing Diagram</h3>
+                        <div class="timing-diagram" id="timingDiagram">
+                            <!-- Timing diagram will be drawn here -->
+                        </div>
+                    </div>
+                    
+                    <div class="visualization-box">
+                        <h3><i class="fas fa-clock"></i> Signal Analysis</h3>
+                        <div style="padding: 15px;">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <strong>Clock Signal (CLK):</strong> Synchronizes state transitions. Rising edges trigger state updates.
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <strong>Input Signal (X):</strong> Your input sequence "100" shown over time.
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <strong>State Signals (Q1 Q0):</strong> Encoded state values during processing.
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <strong>Output Signal (Z):</strong> Output generated for your input sequence.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 25px; background: #fff8e1; padding: 15px; border-radius: 10px; border-left: 4px solid #f1c40f;">
+                            <h4><i class="fas fa-exclamation-triangle"></i> Critical Timing Analysis</h4>
+                            <p style="margin-top: 10px;"><strong>Setup Time:</strong> Input must be stable before clock edge</p>
+                            <p><strong>Hold Time:</strong> Input must remain stable after clock edge</p>
+                            <p><strong>Propagation Delay:</strong> Moore: Output delay = T<sub>FF</sub> + T<sub>comb</sub>, Mealy: T<sub>comb</sub> only</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Circuit Diagram Content -->
+            <div class="content-container" id="circuit-diagram">
+                <div class="info-section">
+                    <h3><i class="fas fa-microchip"></i> Circuit Diagram Explanation</h3>
+                    <p>These circuit diagrams show textbook-style implementations based on your selected machine type. Both implementations follow standard digital electronics design methodology.</p>
+                    <p><strong>Design Flow:</strong> State Table → State Assignment → Karnaugh Maps → Boolean Expressions → Logic Circuit</p>
+                </div>
+                
+                <div class="visualization-container">
+                    <div class="visualization-box">
+                        <h3><i class="fas fa-project-diagram"></i> Circuit Diagram - Textbook Style</h3>
+                        <div class="diagram-container">
+                            <div class="circuit-diagram-container" id="circuitDiagram">
+                                <!-- Circuit diagram will be drawn here -->
+                            </div>
+                        </div>
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button id="toggleCircuitView" class="machine-btn" style="width: auto; padding: 8px 20px;">
+                                <i class="fas fa-exchange-alt"></i> Switch to <span id="circuitTypeLabel">Mealy</span> Circuit
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="visualization-box">
+                        <h3><i class="fas fa-cogs"></i> Circuit Components & Equations</h3>
+                        <div style="margin-bottom: 20px;">
+                            <h4><i class="fas fa-code"></i> Boolean Equations</h4>
+                            <div id="booleanEquations" style="background: #2c3e50; color: white; padding: 15px; border-radius: 10px; margin-top: 10px; font-family: monospace; font-size: 14px;">
+                                <!-- Boolean equations will be shown here -->
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4><i class="fas fa-list"></i> Component List</h4>
+                            <div id="componentList" style="margin-top: 10px;">
+                                <!-- Component list will be generated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Comparison Content -->
+            <div class="content-container" id="comparison">
+                <div class="info-section">
+                    <h3><i class="fas fa-balance-scale"></i> Moore vs Mealy - Detailed Comparison</h3>
+                    <p>This comparison highlights the fundamental differences between Moore and Mealy machines based on your selected machine type and input sequence.</p>
+                </div>
+                
+                <div class="visualization-container">
+                    <div class="visualization-box">
+                        <h3><i class="fas fa-list-alt"></i> Technical Comparison</h3>
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                            <thead>
+                                <tr style="background: #3498db; color: white;">
+                                    <th style="padding: 15px; text-align: left;">Parameter</th>
+                                    <th style="padding: 15px; text-align: center;">Moore Machine</th>
+                                    <th style="padding: 15px; text-align: center;">Mealy Machine</th>
+                                </tr>
+                            </thead>
+                            <tbody id="comparisonTable">
+                                <!-- Comparison table will be generated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="visualization-box">
+                        <h3><i class="fas fa-lightbulb"></i> Design Recommendations</h3>
+                        <div style="margin-top: 20px;">
+                            <div style="background: #e8f4fc; padding: 20px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #3498db;">
+                                <h4><i class="fas fa-check-circle" style="color: #3498db;"></i> Choose Moore Machine When:</h4>
+                                <ul style="margin-top: 10px; padding-left: 20px; line-height: 1.8;">
+                                    <li>Output timing must align with clock edges</li>
+                                    <li>Glitch-free operation is critical</li>
+                                    <li>Design simplicity is prioritized</li>
+                                    <li>Power consumption is not a primary concern</li>
+                                    <li>Testing and debugging ease is important</li>
+                                </ul>
+                            </div>
+                            
+                            <div style="background: #e8f6f3; padding: 20px; border-radius: 10px; border-left: 4px solid #1abc9c;">
+                                <h4><i class="fas fa-check-circle" style="color: #1abc9c;"></i> Choose Mealy Machine When:</h4>
+                                <ul style="margin-top: 10px; padding-left: 20px; line-height: 1.8;">
+                                    <li>Minimum latency is required</li>
+                                    <li>Minimizing state count is important</li>
+                                    <li>Lower power consumption is needed</li>
+                                    <li>Input changes are synchronous</li>
+                                    <li>Immediate pattern detection is required</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 25px; background: #fff8e1; padding: 15px; border-radius: 10px;">
+                            <h4><i class="fas fa-exchange-alt"></i> Conversion Methodology</h4>
+                            <p style="margin-top: 10px;"><strong>Mealy→Moore:</strong> Add states for each distinct (state, input) combination that produces different outputs.</p>
+                            <p><strong>Moore→Mealy:</strong> Move output from states to transitions, eliminate redundant states.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentMachine = 'moore';
+        let currentMachineType = 'parity';
+        let inputSequence = '100';
+        let mooreOutputs = [];
+        let mealyOutputs = [];
+        let mooreStates = [];
+        let mealyStates = [];
+        let circuitView = 'moore';
+        let detectionPositions = [];
+        
+        // Machine definitions
+        const machines = {
+            parity: {
+                name: "Parity Checker",
+                moore: {
+                    states: ['Even', 'Odd'],
+                    initialState: 'Even',
+                    outputs: { 'Even': '0', 'Odd': '1' },
+                    transitions: {
+                        'Even,0': 'Even',
+                        'Even,1': 'Odd',
+                        'Odd,0': 'Odd',
+                        'Odd,1': 'Even'
+                    }
+                },
+                mealy: {
+                    states: ['Even', 'Odd'],
+                    initialState: 'Even',
+                    transitions: {
+                        'Even,0': ['Even', '0'],
+                        'Even,1': ['Odd', '1'],
+                        'Odd,0': ['Odd', '1'],
+                        'Odd,1': ['Even', '0']
+                    }
+                }
+            },
+            sequence: {
+                name: "Sequence Detector (101)",
+                moore: {
+                    states: ['S0', 'S1', 'S2', 'S3'],
+                    initialState: 'S0',
+                    outputs: { 'S0': '0', 'S1': '0', 'S2': '0', 'S3': '1' },
+                    transitions: {
+                        'S0,0': 'S0',
+                        'S0,1': 'S1',
+                        'S1,0': 'S2',
+                        'S1,1': 'S1',
+                        'S2,0': 'S0',
+                        'S2,1': 'S3',
+                        'S3,0': 'S2',
+                        'S3,1': 'S1'
+                    }
+                },
+                mealy: {
+                    states: ['S0', 'S1', 'S2'],
+                    initialState: 'S0',
+                    transitions: {
+                        'S0,0': ['S0', '0'],
+                        'S0,1': ['S1', '0'],
+                        'S1,0': ['S2', '0'],
+                        'S1,1': ['S1', '0'],
+                        'S2,0': ['S0', '0'],
+                        'S2,1': ['S1', '1']
+                    }
+                }
+            }
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            runSimulation();
+            
+            // Add back button event listener
+            document.getElementById('backToGateVisualization').addEventListener('click', function() {
+                window.location.href = 'Digital_logic_processor.html';
+            });
+        });
+
+        // Set up all event listeners
+        function initializeEventListeners() {
+            // Navigation buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const contentId = this.getAttribute('data-content');
+                    document.querySelectorAll('.content-container').forEach(container => {
+                        container.classList.remove('active');
+                    });
+                    document.getElementById(contentId).classList.add('active');
+                    
+                    // Update specific visualization if needed
+                    if (contentId === 'state-diagram') {
+                        drawStateDiagram();
+                    } else if (contentId === 'timing-diagram') {
+                        drawTimingDiagram();
+                    } else if (contentId === 'circuit-diagram') {
+                        drawCircuitDiagram();
+                    } else if (contentId === 'comparison') {
+                        updateComparisonTable();
+                    }
+                });
+            });
+            
+            // Machine selector buttons
+            document.querySelectorAll('.machine-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.machine-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentMachine = this.getAttribute('data-machine');
+                    document.getElementById('currentMachine').textContent = 
+                        currentMachine === 'moore' ? 'Moore Machine' : 'Mealy Machine';
+                    document.getElementById('currentMachine').className = 
+                        currentMachine === 'moore' ? 'moore-highlight' : 'mealy-highlight';
+                    
+                    // Update visualizations
+                    updateTruthTables();
+                    updateCalculationSteps();
+                    updateResultDisplay();
+                    
+                    if (document.getElementById('state-diagram').classList.contains('active')) {
+                        drawStateDiagram();
+                    }
+                });
+            });
+            
+            // Machine type selector
+            document.getElementById('machineType').addEventListener('change', function() {
+                currentMachineType = this.value;
+                document.getElementById('currentType').textContent = machines[currentMachineType].name;
+                
+                // Show/hide custom configuration
+                const customConfig = document.getElementById('customConfig');
+                if (currentMachineType === 'custom') {
+                    customConfig.style.display = 'block';
+                } else {
+                    customConfig.style.display = 'none';
+                }
+                
+                runSimulation();
+            });
+            
+            // Input sequence field
+            document.getElementById('inputSequence').addEventListener('input', function() {
+                // Validate input - only allow 0 and 1
+                this.value = this.value.replace(/[^01]/g, '');
+                if (this.value === '') this.value = '0';
+                inputSequence = this.value;
+                document.getElementById('currentInput').textContent = inputSequence;
+            });
+            
+            // Run simulation button
+            document.getElementById('runSimulation').addEventListener('click', runSimulation);
+            
+            // Reset simulation button
+            document.getElementById('resetSimulation').addEventListener('click', function() {
+                document.getElementById('inputSequence').value = '100';
+                inputSequence = '100';
+                document.getElementById('currentInput').textContent = inputSequence;
+                runSimulation();
+            });
+            
+            // Toggle circuit view button
+            document.getElementById('toggleCircuitView').addEventListener('click', function() {
+                circuitView = circuitView === 'moore' ? 'mealy' : 'moore';
+                document.getElementById('circuitTypeLabel').textContent = 
+                    circuitView === 'moore' ? 'Mealy' : 'Moore';
+                drawCircuitDiagram();
+            });
+        }
+
+        // Main simulation function
+        function runSimulation() {
+            // Get input sequence
+            inputSequence = document.getElementById('inputSequence').value || '100';
+            document.getElementById('currentInput').textContent = inputSequence;
+            
+            // Run simulation based on machine type
+            if (currentMachineType === 'custom') {
+                simulateCustomMachine();
+            } else {
+                simulateStandardMachine();
+            }
+            
+            // Update all visualizations
+            updateTruthTables();
+            updateCalculationSteps();
+            updateResultDisplay();
+            updateBooleanEquations();
+            
+            // Update other visualizations if they're active
+            if (document.getElementById('state-diagram').classList.contains('active')) {
+                drawStateDiagram();
+            }
+            if (document.getElementById('timing-diagram').classList.contains('active')) {
+                drawTimingDiagram();
+            }
+            if (document.getElementById('circuit-diagram').classList.contains('active')) {
+                drawCircuitDiagram();
+            }
+            if (document.getElementById('comparison').classList.contains('active')) {
+                updateComparisonTable();
+            }
+        }
+
+        // Simulate standard machine (parity or sequence)
+        function simulateStandardMachine() {
+            const machineDef = machines[currentMachineType][currentMachine];
+            
+            // Reset arrays
+            mooreOutputs = [];
+            mealyOutputs = [];
+            mooreStates = [machineDef.initialState];
+            mealyStates = [machineDef.initialState];
+            detectionPositions = [];
+            
+            let currentState = machineDef.initialState;
+            let onesCount = 0;
+            let sequenceCount = 0;
+            
+            // Process each input
+            for (let i = 0; i < inputSequence.length; i++) {
+                const input = inputSequence[i];
+                const key = `${currentState},${input}`;
+                
+                if (currentMachine === 'moore') {
+                    // Moore machine simulation
+                    const output = machineDef.outputs[currentState];
+                    mooreOutputs.push(output);
+                    
+                    // Update state
+                    const nextState = machineDef.transitions[key];
+                    currentState = nextState;
+                    mooreStates.push(nextState);
+                    
+                    // Count detected sequences for 101 detector
+                    if (currentMachineType === 'sequence' && output === '1') {
+                        sequenceCount++;
+                        detectionPositions.push([i-2, i]); // 101 spans positions i-2 to i
+                    }
+                    
+                    // Count ones for parity
+                    if (currentMachineType === 'parity' && input === '1') onesCount++;
+                } else {
+                    // Mealy machine simulation
+                    const [nextState, output] = machineDef.transitions[key];
+                    mealyOutputs.push(output);
+                    
+                    // Update state
+                    currentState = nextState;
+                    mealyStates.push(nextState);
+                    
+                    // Count detected sequences for 101 detector
+                    if (currentMachineType === 'sequence' && output === '1') {
+                        sequenceCount++;
+                        detectionPositions.push([i-2, i]); // 101 spans positions i-2 to i
+                    }
+                    
+                    // Count ones for parity
+                    if (currentMachineType === 'parity' && input === '1') onesCount++;
+                }
+            }
+            
+            // Store results for the other machine type
+            if (currentMachine === 'moore') {
+                mealyOutputs = simulateMealyForDisplay();
+                mealyStates = simulateMealyStatesForDisplay();
+            } else {
+                mooreOutputs = simulateMooreForDisplay();
+                mooreStates = simulateMooreStatesForDisplay();
+            }
+        }
+
+        // Simulate Moore machine for display purposes
+        function simulateMooreForDisplay() {
+            const machineDef = machines[currentMachineType].moore;
+            let currentState = machineDef.initialState;
+            const outputs = [];
+            
+            for (let i = 0; i < inputSequence.length; i++) {
+                const input = inputSequence[i];
+                const key = `${currentState},${input}`;
+                const output = machineDef.outputs[currentState];
+                outputs.push(output);
+                currentState = machineDef.transitions[key];
+            }
+            return outputs;
+        }
+
+        // Simulate Mealy machine for display purposes
+        function simulateMealyForDisplay() {
+            const machineDef = machines[currentMachineType].mealy;
+            let currentState = machineDef.initialState;
+            const outputs = [];
+            
+            for (let i = 0; i < inputSequence.length; i++) {
+                const input = inputSequence[i];
+                const key = `${currentState},${input}`;
+                const [nextState, output] = machineDef.transitions[key];
+                outputs.push(output);
+                currentState = nextState;
+            }
+            return outputs;
+        }
+
+        // Simulate Moore states for display
+        function simulateMooreStatesForDisplay() {
+            const machineDef = machines[currentMachineType].moore;
+            let currentState = machineDef.initialState;
+            const states = [currentState];
+            
+            for (let i = 0; i < inputSequence.length; i++) {
+                const input = inputSequence[i];
+                const key = `${currentState},${input}`;
+                currentState = machineDef.transitions[key];
+                states.push(currentState);
+            }
+            return states;
+        }
+
+        // Simulate Mealy states for display
+        function simulateMealyStatesForDisplay() {
+            const machineDef = machines[currentMachineType].mealy;
+            let currentState = machineDef.initialState;
+            const states = [currentState];
+            
+            for (let i = 0; i < inputSequence.length; i++) {
+                const input = inputSequence[i];
+                const key = `${currentState},${input}`;
+                const [nextState] = machineDef.transitions[key];
+                currentState = nextState;
+                states.push(currentState);
+            }
+            return states;
+        }
+
+        // Simulate custom machine
+        function simulateCustomMachine() {
+            try {
+                const customConfig = JSON.parse(document.getElementById('customTable').value);
+                
+                if (customConfig.type === 'moore') {
+                    // Custom Moore machine
+                    let currentState = customConfig.initial;
+                    mooreOutputs = [];
+                    mooreStates = [currentState];
+                    
+                    for (let i = 0; i < inputSequence.length; i++) {
+                        const input = inputSequence[i];
+                        const key = `${currentState},${input}`;
+                        const output = customConfig.outputs[currentState];
+                        mooreOutputs.push(output);
+                        const nextState = customConfig.transitions[key];
+                        currentState = nextState;
+                        mooreStates.push(nextState);
+                    }
+                    
+                    // Simulate Mealy for comparison
+                    mealyOutputs = [];
+                    mealyStates = [customConfig.initial];
+                } else {
+                    // Custom Mealy machine
+                    let currentState = customConfig.initial;
+                    mealyOutputs = [];
+                    mealyStates = [currentState];
+                    
+                    for (let i = 0; i < inputSequence.length; i++) {
+                        const input = inputSequence[i];
+                        const key = `${currentState},${input}`;
+                        const [nextState, output] = customConfig.transitions[key];
+                        mealyOutputs.push(output);
+                        currentState = nextState;
+                        mealyStates.push(nextState);
+                    }
+                    
+                    // Simulate Moore for comparison
+                    mooreOutputs = [];
+                    mooreStates = [customConfig.initial];
+                }
+            } catch (e) {
+                alert('Invalid custom configuration. Using parity checker instead.');
+                currentMachineType = 'parity';
+                document.getElementById('machineType').value = 'parity';
+                simulateStandardMachine();
+            }
+        }
+
+        // Update truth tables
+        function updateTruthTables() {
+            const mooreTable = document.getElementById('mooreTruthTable');
+            const mealyTable = document.getElementById('mealyTruthTable');
+            
+            // Show/hide based on current machine
+            if (currentMachine === 'moore') {
+                mooreTable.style.display = 'table';
+                mealyTable.style.display = 'none';
+            } else {
+                mooreTable.style.display = 'none';
+                mealyTable.style.display = 'table';
+            }
+            
+            // Generate truth tables based on machine type
+            if (currentMachineType === 'sequence') {
+                // Moore truth table for sequence detector
+                let mooreHTML = `
+                    <thead>
+                        <tr>
+                            <th>Present State</th>
+                            <th>State Output</th>
+                            <th>Input (X)</th>
+                            <th>Next State</th>
+                            <th>Output (Z)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>S0 (00)</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>S0 (00)</td>
+                            <td>0</td>
+                        </tr>
+                        <tr>
+                            <td>S0 (00)</td>
+                            <td>0</td>
+                            <td>1</td>
+                            <td>S1 (01)</td>
+                            <td>0</td>
+                        </tr>
+                        <tr>
+                            <td>S1 (01)</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>S2 (10)</td>
+                            <td>0</td>
+                        </tr>
+                        <tr>
+                            <td>S1 (01)</td>
+                            <td>0</td>
+                            <td>1</td>
+                            <td>S1 (01)</td>
+                            <td>0</td>
+                        </tr>
+                        <tr>
+                            <td>S2 (10)</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>S0 (00)</td>
+                            <td>0</td>
+                        </tr>
+                        <tr>
+                            <td>S2 (10)</td>
+                            <td>0</td>
+                            <td>1</td>
+                            <td>S3 (11)</td>
+                            <td>0</td>
+                        </tr>
+                        <tr>
+                            <td>S3 (11)</td>
+                            <td>1</td>
+                            <td>0</td>
+                            <td>S2 (10)</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>S3 (11)</td>
+                            <td>1</td>
+                            <td>1</td>
+                            <td>S1 (01)</td>
+                            <td>1</td>
+                        </tr>
+                    </tbody>`;
+                mooreTable.innerHTML = mooreHTML;
+                
+                // Mealy truth table for sequence detector
+                let mealyHTML = `
+                    <thead>
+                        <tr>
+                            <th>Present State</th>
+                            <th>Input (X)</th>
+                            <th>Next State</th>
+                            <th>Output (Z)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>S0 (00)</td>
+                            <td>0</td>
+                            <td>S0 (00)</td>
+                            <td>0</td>
+                        </tr>
+                        <tr>
+                            <td>S0 (00)</td>
+                            <td>1</td>
+                            <td>S1 (01)</td>
+                            <td>0</td>
+                        </tr>
+                        <tr>
+                            <td>S1 (01)</td>
+                            <td>0</td>
+                            <td>S2 (10)</td>
+                            <td>0</td>
+                        </tr>
+                        <tr>
+                            <td>S1 (01)</td>
+                            <td>1</td>
+                            <td>S1 (01)</td>
+                            <td>0</td>
+                        </tr>
+                        <tr>
+                            <td>S2 (10)</td>
+                            <td>0</td>
+                            <td>S0 (00)</td>
+                            <td>0</td>
+                        </tr>
+                        <tr>
+                            <td>S2 (10)</td>
+                            <td>1</td>
+                            <td>S1 (01)</td>
+                            <td>1</td>
+                        </tr>
+                    </tbody>`;
+                mealyTable.innerHTML = mealyHTML;
+            } else if (currentMachineType === 'parity') {
+                // Moore truth table for parity checker
+                let mooreHTML = `
+                    <thead>
+                        <tr>
+                            <th>Present State</th>
+                            <th>State Output</th>
+                            <th>Input (X)</th>
+                            <th>Next State</th>
+                            <th>Output (Z)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Even (0)</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>Even (0)</td>
+                            <td>0</td>
+                        </tr>
+                        <tr>
+                            <td>Even (0)</td>
+                            <td>0</td>
+                            <td>1</td>
+                            <td>Odd (1)</td>
+                            <td>0</td>
+                        </tr>
+                        <tr>
+                            <td>Odd (1)</td>
+                            <td>1</td>
+                            <td>0</td>
+                            <td>Odd (1)</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>Odd (1)</td>
+                            <td>1</td>
+                            <td>1</td>
+                            <td>Even (0)</td>
+                            <td>1</td>
+                        </tr>
+                    </tbody>`;
+                mooreTable.innerHTML = mooreHTML;
+                
+                // Mealy truth table for parity checker
+                let mealyHTML = `
+                    <thead>
+                        <tr>
+                            <th>Present State</th>
+                            <th>Input (X)</th>
+                            <th>Next State</th>
+                            <th>Output (Z)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Even (0)</td>
+                            <td>0</td>
+                            <td>Even (0)</td>
+                            <td>0</td>
+                        </tr>
+                        <tr>
+                            <td>Even (0)</td>
+                            <td>1</td>
+                            <td>Odd (1)</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>Odd (1)</td>
+                            <td>0</td>
+                            <td>Odd (1)</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>Odd (1)</td>
+                            <td>1</td>
+                            <td>Even (0)</td>
+                            <td>0</td>
+                        </tr>
+                    </tbody>`;
+                mealyTable.innerHTML = mealyHTML;
+            }
+        }
+
+        // Update calculation steps
+        function updateCalculationSteps() {
+            const stepsDiv = document.getElementById('calculationSteps');
+            const encodingDiv = document.getElementById('stateEncodingInfo');
+            const outputLogicDiv = document.getElementById('outputLogicInfo');
+            
+            let stepsHTML = '';
+            let encodingHTML = '';
+            let outputLogicHTML = '';
+            
+            if (currentMachineType === 'sequence') {
+                const outputs = currentMachine === 'moore' ? mooreOutputs : mealyOutputs;
+                const sequenceCount = outputs.filter(bit => bit === '1').length;
+                
+                encodingHTML = `States represent progress in detecting "101":
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>S0: No bits detected or reset state</li>
+                        <li>S1: First '1' detected</li>
+                        <li>S2: '10' detected</li>
+                        ${currentMachine === 'moore' ? '<li>S3: "101" detected (output state)</li>' : ''}
+                    </ul>`;
+                
+                outputLogicHTML = `
+                    <p><span class="moore-highlight">Moore:</span> Output = 1 only in state S3</p>
+                    <p><span class="mealy-highlight">Mealy:</span> Output = 1 when in state S2 and input = 1</p>
+                `;
+                
+                stepsHTML = `
+                    <h4><i class="fas fa-calculator"></i> Boolean Algebra & Simulation Steps</h4>
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong>Your Input Analysis:</strong> "${inputSequence}" is scanned for pattern "101"
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <strong>State Machine Operation:</strong> Machine transitions through states based on your input.
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <strong>Output Generation (${currentMachine === 'moore' ? 'Moore' : 'Mealy'}):</strong>
+                            ${currentMachine === 'moore' ? 
+                                'Output = 1 only when in state S3 (after detecting complete "101")' : 
+                                'Output = 1 when in state S2 and input = 1 (immediate detection)'}
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <strong>Result:</strong> Detected ${sequenceCount} occurrence(s) of "101" in your input sequence.
+                            ${detectionPositions.length > 0 ? `Positions: ${detectionPositions.map(pos => `[${pos[0]}-${pos[1]}]`).join(', ')}` : ''}
+                        </div>
+                    </div>`;
+            } else if (currentMachineType === 'parity') {
+                const outputs = currentMachine === 'moore' ? mooreOutputs : mealyOutputs;
+                const onesCount = inputSequence.split('').filter(bit => bit === '1').length;
+                const isOdd = onesCount % 2 === 1;
+                
+                encodingHTML = `States represent parity of bits seen so far:
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>Even: Even number of 1's detected</li>
+                        <li>Odd: Odd number of 1's detected</li>
+                    </ul>`;
+                
+                outputLogicHTML = `
+                    <p><span class="moore-highlight">Moore:</span> Output = 1 when in Odd state</p>
+                    <p><span class="mealy-highlight">Mealy:</span> Output = 1 when input makes total count odd</p>
+                `;
+                
+                stepsHTML = `
+                    <h4><i class="fas fa-calculator"></i> Boolean Algebra & Simulation Steps</h4>
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong>Your Input Analysis:</strong> "${inputSequence}" contains ${onesCount} one(s)
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <strong>State Machine Operation:</strong> Machine tracks parity (even/odd) of 1's seen so far.
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <strong>Output Generation (${currentMachine === 'moore' ? 'Moore' : 'Mealy'}):</strong>
+                            ${currentMachine === 'moore' ? 
+                                'Output indicates current parity (1 for odd, 0 for even)' : 
+                                'Output indicates whether current input makes total count odd'}
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <strong>Result:</strong> Your sequence has ${isOdd ? 'odd' : 'even'} parity (${onesCount} one(s) → ${isOdd ? '1' : '0'})
+                        </div>
+                    </div>`;
+            }
+            
+            stepsDiv.innerHTML = stepsHTML;
+            encodingDiv.innerHTML = encodingHTML;
+            outputLogicDiv.innerHTML = outputLogicHTML;
+        }
+
+        // Update result display
+        function updateResultDisplay() {
+            document.getElementById('resultInput').textContent = inputSequence;
+            
+            const outputs = currentMachine === 'moore' ? mooreOutputs : mealyOutputs;
+            const states = currentMachine === 'moore' ? mooreStates : mealyStates;
+            
+            document.getElementById('resultOutput').textContent = outputs.join('');
+            document.getElementById('resultState').textContent = states[states.length-1];
+            
+            // Calculate result based on machine type
+            let resultText = '';
+            let detailsText = '';
+            
+            if (currentMachineType === 'sequence') {
+                const sequenceCount = outputs.filter(bit => bit === '1').length;
+                resultText = `${sequenceCount} sequence(s) detected`;
+                
+                if (detectionPositions.length > 0) {
+                    detailsText = detectionPositions.map(pos => `[${pos[0]}-${pos[1]}]`).join(', ');
+                } else {
+                    detailsText = 'No "101" pattern found';
+                }
+            } else if (currentMachineType === 'parity') {
+                const onesCount = inputSequence.split('').filter(bit => bit === '1').length;
+                const isOdd = onesCount % 2 === 1;
+                resultText = `${isOdd ? 'Odd' : 'Even'} parity (${onesCount} one(s))`;
+                detailsText = `Final output: ${outputs[outputs.length-1] || '0'}`;
+            }
+            
+            document.getElementById('resultCount').textContent = resultText;
+            document.getElementById('detectionPositions').textContent = detailsText;
+        }
+
+        // Update boolean equations
+        function updateBooleanEquations() {
+            const eqDiv = document.getElementById('booleanEquations');
+            const componentDiv = document.getElementById('componentList');
+            
+            let eqHTML = '';
+            let compHTML = '';
+            
+            if (currentMachineType === 'sequence') {
+                if (currentMachine === 'moore') {
+                    eqHTML = `// Moore Machine - 101 Sequence Detector
+// State Encoding: S0=00, S1=01, S2=10, S3=11
+                    
+// Next State Logic:
+D1 = Q1'·Q0·X' + Q1·Q0'·X' + Q1·Q0·X'
+D0 = Q1'·Q0'·X + Q1'·Q0·X + Q1·Q0'·X + Q1·Q0·X
+                    
+// Output Logic:
+Z = Q1·Q0`;
+                    
+                    compHTML = `
+                        <div style="background: #e8f4fc; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                            <strong>Moore Circuit Components:</strong>
+                            <ul style="margin-left: 20px; margin-top: 5px;">
+                                <li>2 × D Flip-Flops (for Q1, Q0)</li>
+                                <li>3 × AND Gates (3-input, 2-input)</li>
+                                <li>2 × OR Gates (4-input, 3-input)</li>
+                                <li>3 × NOT Gates (inverters)</li>
+                                <li>1 × AND Gate for output (2-input)</li>
+                            </ul>
+                        </div>`;
+                } else {
+                    eqHTML = `// Mealy Machine - 101 Sequence Detector
+// State Encoding: S0=00, S1=01, S2=10
+                    
+// Next State Logic:
+D1 = Q1'·Q0·X' + Q1·Q0'·X'
+D0 = Q1'·Q0'·X + Q1'·Q0·X + Q1·Q0'·X
+                    
+// Output Logic:
+Z = Q1·Q0'·X`;
+                    
+                    compHTML = `
+                        <div style="background: #e8f6f3; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                            <strong>Mealy Circuit Components:</strong>
+                            <ul style="margin-left: 20px; margin-top: 5px;">
+                                <li>2 × D Flip-Flops (for Q1, Q0)</li>
+                                <li>3 × AND Gates (3-input)</li>
+                                <li>2 × OR Gates (3-input, 2-input)</li>
+                                <li>2 × NOT Gates (inverters)</li>
+                                <li>1 × AND Gate for output (3-input)</li>
+                            </ul>
+                        </div>`;
+                }
+            } else if (currentMachineType === 'parity') {
+                if (currentMachine === 'moore') {
+                    eqHTML = `// Moore Machine - Parity Checker
+// State Encoding: Even=0, Odd=1
+                    
+// Next State Logic:
+D = Q'·X + Q·X'
+                    
+// Output Logic:
+Z = Q`;
+                    
+                    compHTML = `
+                        <div style="background: #e8f4fc; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                            <strong>Moore Circuit Components:</strong>
+                            <ul style="margin-left: 20px; margin-top: 5px;">
+                                <li>1 × D Flip-Flop</li>
+                                <li>2 × AND Gates (2-input)</li>
+                                <li>1 × OR Gate (2-input)</li>
+                                <li>2 × NOT Gates (inverters)</li>
+                                <li>Direct output connection</li>
+                            </ul>
+                        </div>`;
+                } else {
+                    eqHTML = `// Mealy Machine - Parity Checker
+// State Encoding: Even=0, Odd=1
+                    
+// Next State Logic:
+D = Q'·X + Q·X'
+                    
+// Output Logic:
+Z = X`;
+                    
+                    compHTML = `
+                        <div style="background: #e8f6f3; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                            <strong>Mealy Circuit Components:</strong>
+                            <ul style="margin-left: 20px; margin-top: 5px;">
+                                <li>1 × D Flip-Flop</li>
+                                <li>2 × AND Gates (2-input)</li>
+                                <li>1 × OR Gate (2-input)</li>
+                                <li>2 × NOT Gates (inverters)</li>
+                                <li>Direct output from input</li>
+                            </ul>
+                        </div>`;
+                }
+            }
+            
+            eqDiv.innerHTML = eqHTML;
+            componentDiv.innerHTML = compHTML;
+        }
+
+        // Draw state diagram
+        function drawStateDiagram() {
+            const diagramDiv = document.getElementById('stateDiagram');
+            diagramDiv.innerHTML = '';
+            
+            // Set dimensions
+            const width = diagramDiv.clientWidth;
+            const height = diagramDiv.clientHeight;
+            
+            const isMoore = currentMachine === 'moore';
+            let states, statePositions;
+            
+            if (currentMachineType === 'sequence') {
+                states = isMoore ? ['S0', 'S1', 'S2', 'S3'] : ['S0', 'S1', 'S2'];
+                
+                // Calculate positions
+                statePositions = {};
+                const centerX = width / 2;
+                const centerY = height / 2;
+                const radius = Math.min(width, height) * 0.3;
+                
+                if (isMoore) {
+                    // Moore: 4 states in a diamond pattern
+                    statePositions['S0'] = {x: centerX, y: centerY - radius};
+                    statePositions['S1'] = {x: centerX + radius, y: centerY};
+                    statePositions['S2'] = {x: centerX, y: centerY + radius};
+                    statePositions['S3'] = {x: centerX - radius, y: centerY};
+                } else {
+                    // Mealy: 3 states in a triangle pattern
+                    statePositions['S0'] = {x: centerX, y: centerY - radius * 0.7};
+                    statePositions['S1'] = {x: centerX + radius * 0.8, y: centerY + radius * 0.5};
+                    statePositions['S2'] = {x: centerX - radius * 0.8, y: centerY + radius * 0.5};
+                }
+                
+                // Draw transitions
+                if (isMoore) {
+                    drawArrow(diagramDiv, statePositions['S0'], statePositions['S0'], '0', 0, -30);
+                    drawArrow(diagramDiv, statePositions['S0'], statePositions['S1'], '1', 30, 0);
+                    drawArrow(diagramDiv, statePositions['S1'], statePositions['S2'], '0', 0, 30);
+                    drawArrow(diagramDiv, statePositions['S1'], statePositions['S1'], '1', 30, 0);
+                    drawArrow(diagramDiv, statePositions['S2'], statePositions['S0'], '0', 0, -30);
+                    drawArrow(diagramDiv, statePositions['S2'], statePositions['S3'], '1', -30, 0);
+                    drawArrow(diagramDiv, statePositions['S3'], statePositions['S2'], '0', 0, 30);
+                    drawArrow(diagramDiv, statePositions['S3'], statePositions['S1'], '1', 30, 0);
+                } else {
+                    drawArrow(diagramDiv, statePositions['S0'], statePositions['S0'], '0/0', 0, -30);
+                    drawArrow(diagramDiv, statePositions['S0'], statePositions['S1'], '1/0', 30, -15);
+                    drawArrow(diagramDiv, statePositions['S1'], statePositions['S2'], '0/0', -15, 30);
+                    drawArrow(diagramDiv, statePositions['S1'], statePositions['S1'], '1/0', 30, 0);
+                    drawArrow(diagramDiv, statePositions['S2'], statePositions['S0'], '0/0', 0, -30);
+                    drawArrow(diagramDiv, statePositions['S2'], statePositions['S1'], '1/1', 15, -15);
+                }
+            } else if (currentMachineType === 'parity') {
+                states = ['Even', 'Odd'];
+                
+                // Calculate positions for parity checker
+                statePositions = {};
+                const centerX = width / 2;
+                const centerY = height / 2;
+                const radius = Math.min(width, height) * 0.25;
+                
+                statePositions['Even'] = {x: centerX - radius, y: centerY};
+                statePositions['Odd'] = {x: centerX + radius, y: centerY};
+                
+                // Draw transitions
+                if (isMoore) {
+                    drawArrow(diagramDiv, statePositions['Even'], statePositions['Even'], '0', -30, -30);
+                    drawArrow(diagramDiv, statePositions['Even'], statePositions['Odd'], '1', 30, -30);
+                    drawArrow(diagramDiv, statePositions['Odd'], statePositions['Odd'], '0', 30, 30);
+                    drawArrow(diagramDiv, statePositions['Odd'], statePositions['Even'], '1', -30, 30);
+                } else {
+                    drawArrow(diagramDiv, statePositions['Even'], statePositions['Even'], '0/0', -30, -30);
+                    drawArrow(diagramDiv, statePositions['Even'], statePositions['Odd'], '1/1', 30, -30);
+                    drawArrow(diagramDiv, statePositions['Odd'], statePositions['Odd'], '0/1', 30, 30);
+                    drawArrow(diagramDiv, statePositions['Odd'], statePositions['Even'], '1/0', -30, 30);
+                }
+            }
+            
+            // Draw states
+            if (states && statePositions) {
+                states.forEach(state => {
+                    const pos = statePositions[state];
+                    const isInitial = state === (currentMachineType === 'sequence' ? 'S0' : 'Even');
+                    const stateClass = currentMachine === 'moore' ? 'moore' : 'mealy';
+                    
+                    // Determine output for state
+                    let output = '';
+                    if (currentMachine === 'moore') {
+                        if (currentMachineType === 'sequence') {
+                            output = state === 'S3' ? 'Z=1' : 'Z=0';
+                        } else if (currentMachineType === 'parity') {
+                            output = state === 'Odd' ? 'Z=1' : 'Z=0';
+                        }
+                    }
+                    
+                    const stateDiv = document.createElement('div');
+                    stateDiv.className = `state-circle ${stateClass} ${isInitial ? 'initial' : ''}`;
+                    stateDiv.style.left = `${pos.x - 40}px`;
+                    stateDiv.style.top = `${pos.y - 40}px`;
+                    stateDiv.innerHTML = `
+                        <div class="state-label">${state}</div>
+                        ${output ? `<div class="state-output">${output}</div>` : ''}
+                    `;
+                    
+                    diagramDiv.appendChild(stateDiv);
+                });
+            }
+            
+            // Draw transition path for input sequence
+            drawTransitionPath();
+            updateStateInfo();
+        }
+
+        // Draw an arrow between two points
+        function drawArrow(container, from, to, label, offsetX = 0, offsetY = 0) {
+            const dx = to.x - from.x;
+            const dy = to.y - from.y;
+            const length = Math.sqrt(dx*dx + dy*dy);
+            const angle = Math.atan2(dy, dx);
+            
+            // Create arrow line
+            const arrow = document.createElement('div');
+            arrow.className = 'transition-arrow';
+            arrow.style.left = `${from.x}px`;
+            arrow.style.top = `${from.y}px`;
+            arrow.style.width = `${length}px`;
+            arrow.style.transform = `rotate(${angle}rad)`;
+            container.appendChild(arrow);
+            
+            // Create arrowhead
+            const arrowhead = document.createElement('div');
+            arrowhead.style.position = 'absolute';
+            arrowhead.style.left = `${to.x - 10}px`;
+            arrowhead.style.top = `${to.y - 5}px`;
+            arrowhead.style.width = '0';
+            arrowhead.style.height = '0';
+            arrowhead.style.borderLeft = '10px solid #7f8c8d';
+            arrowhead.style.borderTop = '5px solid transparent';
+            arrowhead.style.borderBottom = '5px solid transparent';
+            arrowhead.style.transform = `rotate(${angle}rad)`;
+            container.appendChild(arrowhead);
+            
+            // Create label
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'transition-label';
+            labelDiv.style.left = `${from.x + dx/2 + offsetX}px`;
+            labelDiv.style.top = `${from.y + dy/2 + offsetY}px`;
+            labelDiv.textContent = label;
+            labelDiv.style.fontSize = '12px';
+            container.appendChild(labelDiv);
+        }
+
+        // Draw transition path based on input sequence
+        function drawTransitionPath() {
+            const pathDiv = document.getElementById('transitionPath');
+            const states = currentMachine === 'moore' ? mooreStates : mealyStates;
+            const outputs = currentMachine === 'moore' ? mooreOutputs : mealyOutputs;
+            
+            if (states.length === 0) return;
+            
+            let pathHTML = `<div style="display: flex; align-items: center; flex-wrap: wrap; gap: 5px; font-family: monospace;">`;
+            pathHTML += `<span class="highlight">${states[0]}</span>`;
+            
+            for (let i = 0; i < inputSequence.length; i++) {
+                const input = inputSequence[i];
+                const output = outputs[i];
+                const nextState = states[i+1];
+                
+                pathHTML += ` 
+                    <span style="color: #7f8c8d;">→</span>
+                    <span style="color: #2ecc71;">${input}</span>
+                    ${currentMachine === 'mealy' ? `<span style="color: #e74c3c;">/${output}</span>` : ''}
+                    <span style="color: #7f8c8d;">→</span>
+                    <span class="highlight">${nextState}</span>
+                    ${currentMachine === 'moore' ? `<span style="color: #e74c3c;"> (Z=${output})</span>` : ''}
+                `;
+            }
+            
+            pathHTML += `</div>`;
+            pathDiv.innerHTML = pathHTML;
+        }
+
+        // Update state information
+        function updateStateInfo() {
+            const stateInfoDiv = document.getElementById('stateInfo');
+            const states = currentMachine === 'moore' ? mooreStates : mealyStates;
+            
+            if (states.length === 0) return;
+            
+            // Count occurrences of each state
+            const stateCount = {};
+            states.forEach(state => {
+                stateCount[state] = (stateCount[state] || 0) + 1;
+            });
+            
+            let stateInfoHTML = '';
+            for (const state in stateCount) {
+                const count = stateCount[state];
+                const percentage = Math.round((count / states.length) * 100);
+                
+                stateInfoHTML += `
+                    <div style="margin-bottom: 10px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span><strong>${state}</strong> ${getStateDescription(state)}</span>
+                            <span>${count} cycle${count !== 1 ? 's' : ''} (${percentage}%)</span>
+                        </div>
+                        <div style="margin-top: 5px; height: 8px; background: #ecf0f1; border-radius: 4px; overflow: hidden;">
+                            <div style="height: 100%; width: ${percentage}%; background: ${currentMachine === 'moore' ? '#3498db' : '#2ecc71'}; border-radius: 4px;"></div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            stateInfoDiv.innerHTML = stateInfoHTML;
+        }
+
+        // Get state description
+        function getStateDescription(state) {
+            if (currentMachineType === 'sequence') {
+                const descriptions = {
+                    'S0': '(Reset/No progress)',
+                    'S1': "('1' detected)",
+                    'S2': "('10' detected)",
+                    'S3': "('101' detected)"
+                };
+                return descriptions[state] || '';
+            } else if (currentMachineType === 'parity') {
+                const descriptions = {
+                    'Even': '(Even number of 1\'s)',
+                    'Odd': '(Odd number of 1\'s)'
+                };
+                return descriptions[state] || '';
+            }
+            return '';
+        }
+
+        // Draw timing diagram
+        function drawTimingDiagram() {
+            const timingDiv = document.getElementById('timingDiagram');
+            timingDiv.innerHTML = '';
+            
+            if (inputSequence.length === 0) return;
+            
+            // Create clock signal
+            const clockSignal = [];
+            for (let i = 0; i < inputSequence.length; i++) {
+                clockSignal.push('1', '0');
+            }
+            createSignalWave(timingDiv, 'CLK', 'clock', clockSignal);
+            
+            // Create input signal (extended for each clock cycle)
+            const inputSignal = [];
+            for (let i = 0; i < inputSequence.length; i++) {
+                inputSignal.push(inputSequence[i], inputSequence[i]);
+            }
+            createSignalWave(timingDiv, 'X (Input)', 'input', inputSignal);
+            
+            // Create state signals
+            const states = currentMachine === 'moore' ? mooreStates : mealyStates;
+            let q1Signal = [], q0Signal = [];
+            
+            if (currentMachineType === 'sequence') {
+                for (let i = 0; i < states.length; i++) {
+                    const stateCode = getStateCode(states[i]);
+                    q1Signal.push(stateCode[0], stateCode[0]);
+                    q0Signal.push(stateCode[1], stateCode[1]);
+                }
+                // Remove last duplicate
+                if (q1Signal.length > 0) q1Signal.pop();
+                if (q0Signal.length > 0) q0Signal.pop();
+                
+                createSignalWave(timingDiv, 'Q1', 'state', q1Signal);
+                createSignalWave(timingDiv, 'Q0', 'state', q0Signal);
+            } else if (currentMachineType === 'parity') {
+                // For parity, we only need one state bit
+                for (let i = 0; i < states.length; i++) {
+                    const stateCode = states[i] === 'Odd' ? '1' : '0';
+                    q1Signal.push(stateCode, stateCode);
+                }
+                if (q1Signal.length > 0) q1Signal.pop();
+                createSignalWave(timingDiv, 'Q (State)', 'state', q1Signal);
+            }
+            
+            // Create output signal
+            const outputs = currentMachine === 'moore' ? mooreOutputs : mealyOutputs;
+            const outputSignal = [];
+            for (let i = 0; i < outputs.length; i++) {
+                outputSignal.push(outputs[i], outputs[i]);
+            }
+            createSignalWave(timingDiv, 'Z (Output)', 'output', outputSignal);
+        }
+
+        // Get binary code for state
+        function getStateCode(state) {
+            if (currentMachineType === 'sequence') {
+                const codes = {
+                    'S0': '00',
+                    'S1': '01',
+                    'S2': '10',
+                    'S3': '11'
+                };
+                return codes[state] || '00';
+            }
+            return '0';
+        }
+
+        // Create a signal wave for timing diagram
+        function createSignalWave(container, label, type, values) {
+            if (values.length === 0) return;
+            
+            const signalContainer = document.createElement('div');
+            signalContainer.className = 'signal-container';
+            
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'signal-label';
+            labelDiv.textContent = label;
+            labelDiv.style.fontFamily = 'monospace';
+            signalContainer.appendChild(labelDiv);
+            
+            const waveDiv = document.createElement('div');
+            waveDiv.className = `signal-wave ${type}-wave`;
+            
+            const segmentWidth = 100 / values.length;
+            
+            for (let i = 0; i < values.length; i++) {
+                // Create segment boundary (every 2 values for clock alignment)
+                if (i % 2 === 0) {
+                    const segment = document.createElement('div');
+                    segment.className = 'wave-segment';
+                    segment.style.left = `${i * segmentWidth}%`;
+                    waveDiv.appendChild(segment);
+                }
+                
+                // Create value indicator
+                const valueDiv = document.createElement('div');
+                valueDiv.className = 'wave-value';
+                valueDiv.textContent = values[i];
+                valueDiv.style.left = `${i * segmentWidth + 2}%`;
+                valueDiv.style.fontSize = '14px';
+                
+                // Create high/low level
+                const levelDiv = document.createElement('div');
+                const isHigh = values[i] === '1';
+                levelDiv.className = isHigh ? 'wave-high' : 'wave-low';
+                levelDiv.style.position = 'absolute';
+                levelDiv.style.left = `${i * segmentWidth}%`;
+                levelDiv.style.width = `${segmentWidth}%`;
+                levelDiv.style.height = isHigh ? '70%' : '30%';
+                levelDiv.style.top = isHigh ? '30%' : '70%';
+                
+                waveDiv.appendChild(levelDiv);
+                waveDiv.appendChild(valueDiv);
+            }
+            
+            signalContainer.appendChild(waveDiv);
+            container.appendChild(signalContainer);
+        }
+
+        // Draw circuit diagram (textbook style)
+        function drawCircuitDiagram() {
+            const circuitDiv = document.getElementById('circuitDiagram');
+            circuitDiv.innerHTML = '';
+            
+            const isMoore = circuitView === 'moore';
+            const width = circuitDiv.clientWidth;
+            const height = circuitDiv.clientHeight;
+            
+            let circuitHTML = '';
+            
+            if (currentMachineType === 'sequence') {
+                circuitHTML = `
+                    <div style="position: relative; width: 100%; height: 100%;">
+                        <!-- Input Section -->
+                        <div class="input-port" style="left: 50px; top: 100px;">X</div>
+                        <div class="wire-horizontal wire" style="left: 90px; top: 110px; width: 100px;"></div>
+                        
+                        <!-- Clock Section -->
+                        <div class="input-port" style="left: 50px; top: 200px;">CLK</div>
+                        <div class="wire-horizontal wire" style="left: 90px; top: 210px; width: 100px;"></div>
+                        
+                        <!-- Flip-Flops -->
+                        <div class="circuit-component flip-flop" style="left: 200px; top: 50px;">
+                            <div style="font-weight: bold; text-align: center;">D-FF</div>
+                            <div style="font-size: 12px; text-align: center;">Q1</div>
+                        </div>
+                        <div class="circuit-component flip-flop" style="left: 200px; top: 150px;">
+                            <div style="font-weight: bold; text-align: center;">D-FF</div>
+                            <div style="font-size: 12px; text-align: center;">Q0</div>
+                        </div>
+                        
+                        <!-- Logic Gates -->
+                        <div class="circuit-component logic-gate and-gate" style="left: 350px; top: 80px;">
+                            <div style="font-weight: bold; text-align: center;">AND</div>
+                        </div>
+                        <div class="circuit-component logic-gate or-gate" style="left: 350px; top: 180px;">
+                            <div style="font-weight: bold; text-align: center;">OR</div>
+                        </div>
+                        
+                        <!-- Output Logic -->
+                        ${isMoore ? `
+                            <div class="circuit-component logic-gate and-gate" style="left: 500px; top: 120px;">
+                                <div style="font-weight: bold; text-align: center;">AND</div>
+                                <div style="font-size: 10px; text-align: center;">(Q1·Q0)</div>
+                            </div>
+                        ` : `
+                            <div class="circuit-component logic-gate and-gate" style="left: 500px; top: 120px;">
+                                <div style="font-weight: bold; text-align: center;">AND</div>
+                                <div style="font-size: 10px; text-align: center;">(Q1·Q0'·X)</div>
+                            </div>
+                        `}
+                        
+                        <!-- Output -->
+                        <div class="output-port" style="left: 600px; top: 130px;">Z</div>
+                        
+                        <!-- Wire Labels -->
+                        <div class="wire-label" style="left: 150px; top: 90px;">X</div>
+                        <div class="wire-label" style="left: 150px; top: 190px;">CLK</div>
+                        <div class="wire-label" style="left: 300px; top: 70px;">D1</div>
+                        <div class="wire-label" style="left: 300px; top: 170px;">D0</div>
+                        <div class="wire-label" style="left: 450px; top: 90px;">Next State Logic</div>
+                        <div class="wire-label" style="left: 550px; top: 110px;">Output Logic</div>
+                    </div>
+                `;
+            } else if (currentMachineType === 'parity') {
+                circuitHTML = `
+                    <div style="position: relative; width: 100%; height: 100%;">
+                        <!-- Input Section -->
+                        <div class="input-port" style="left: 50px; top: 150px;">X</div>
+                        <div class="wire-horizontal wire" style="left: 90px; top: 160px; width: 100px;"></div>
+                        
+                        <!-- Clock Section -->
+                        <div class="input-port" style="left: 50px; top: 250px;">CLK</div>
+                        <div class="wire-horizontal wire" style="left: 90px; top: 260px; width: 100px;"></div>
+                        
+                        <!-- Flip-Flop -->
+                        <div class="circuit-component flip-flop" style="left: 200px; top: 100px;">
+                            <div style="font-weight: bold; text-align: center;">D-FF</div>
+                            <div style="font-size: 12px; text-align: center;">Q</div>
+                        </div>
+                        
+                        <!-- Logic Gates -->
+                        <div class="circuit-component logic-gate and-gate" style="left: 350px; top: 130px;">
+                            <div style="font-weight: bold; text-align: center;">AND</div>
+                            <div style="font-size: 10px; text-align: center;">(Q'·X)</div>
+                        </div>
+                        <div class="circuit-component logic-gate and-gate" style="left: 350px; top: 200px;">
+                            <div style="font-weight: bold; text-align: center;">AND</div>
+                            <div style="font-size: 10px; text-align: center;">(Q·X')</div>
+                        </div>
+                        <div class="circuit-component logic-gate or-gate" style="left: 450px; top: 165px;">
+                            <div style="font-weight: bold; text-align: center;">OR</div>
+                            <div style="font-size: 10px; text-align: center;">(D = Q'·X + Q·X')</div>
+                        </div>
+                        
+                        <!-- Output Logic -->
+                        ${isMoore ? `
+                            <div class="wire-vertical wire" style="left: 260px; top: 180px; height: 50px;"></div>
+                            <div class="wire-horizontal wire" style="left: 260px; top: 230px; width: 200px;"></div>
+                            <div class="output-port" style="left: 470px; top: 230px;">Z</div>
+                        ` : `
+                            <div class="wire-vertical wire" style="left: 140px; top: 170px; height: 50px;"></div>
+                            <div class="wire-horizontal wire" style="left: 140px; top: 220px; width: 350px;"></div>
+                            <div class="output-port" style="left: 500px; top: 220px;">Z</div>
+                        `}
+                        
+                        <!-- Wire Labels -->
+                        <div class="wire-label" style="left: 150px; top: 140px;">X</div>
+                        <div class="wire-label" style="left: 150px; top: 240px;">CLK</div>
+                        <div class="wire-label" style="left: 300px; top: 120px;">D</div>
+                    </div>
+                `;
+            }
+            
+            circuitDiv.innerHTML = circuitHTML;
+            
+            // Update boolean equations display
+            updateBooleanEquations();
+        }
+
+        // Update comparison table
+        function updateComparisonTable() {
+            const comparisonDiv = document.getElementById('comparisonTable');
+            
+            let comparisonHTML = '';
+            
+            if (currentMachineType === 'sequence') {
+                comparisonHTML = `
+                    <tr>
+                        <td style="padding: 12px 15px; border-bottom: 1px solid #eee;"><strong>Number of States</strong></td>
+                        <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #eee;">4 States (S0-S3)</td>
+                        <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #eee;">3 States (S0-S2)</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 12px 15px; border-bottom: 1px solid #eee;"><strong>Flip-Flops Required</strong></td>
+                        <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #eee;">2 D-FFs (4 states)</td>
+                        <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #eee;">2 D-FFs (3 states, 1 unused)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px 15px; border-bottom: 1px solid #eee;"><strong>Output Logic Complexity</strong></td>
+                        <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #eee;">Simple (state→output)</td>
+                        <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #eee;">More complex (state+input→output)</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 12px 15px; border-bottom: 1px solid #eee;"><strong>Output Delay</strong></td>
+                        <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #eee;">1 Clock Cycle</td>
+                        <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #eee;">Combinational Delay Only</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px 15px; border-bottom: 1px solid #eee;"><strong>For Your Input "100"</strong></td>
+                        <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #eee;">Output: ${mooreOutputs.join('')}</td>
+                        <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #eee;">Output: ${mealyOutputs.join('')}</td>
+                    </tr>
+                `;
+            } else if (currentMachineType === 'parity') {
+                comparisonHTML = `
+                    <tr>
+                        <td style="padding: 12px 15px; border-bottom: 1px solid #eee;"><strong>Number of States</strong></td>
+                        <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #eee;">2 States (Even, Odd)</td>
+                        <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #eee;">2 States (Even, Odd)</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 12px 15px; border-bottom: 1px solid #eee;"><strong>Flip-Flops Required</strong></td>
+                        <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #eee;">1 D-FF</td>
+                        <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #eee;">1 D-FF</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px 15px; border-bottom: 1px solid #eee;"><strong>Output Logic Complexity</strong></td>
+                        <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #eee;">Trivial (Z = Q)</td>
+                        <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #eee;">Trivial (Z = X)</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 12px 15px; border-bottom: 1px solid #eee;"><strong>Output Delay</strong></td>
+                        <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #eee;">1 Clock Cycle</td>
+                        <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #eee;">Combinational Delay Only</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px 15px; border-bottom: 1px solid #eee;"><strong>For Your Input "100"</strong></td>
+                        <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #eee;">Output: ${mooreOutputs.join('')}</td>
+                        <td style="padding: 12px 15px; text-align: center; border-bottom: 1px solid #eee;">Output: ${mealyOutputs.join('')}</td>
+                    </tr>
+                `;
+            }
+            
+            comparisonDiv.innerHTML = comparisonHTML;
+        }
+    </script>
+</body>
+</html>
