@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Logic Processor - Interactive Learning Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto+Mono:wght@300;400;500&display=swap">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --dark-color: #1a252f;
+            --light-color: #ecf0f1;
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--primary-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            padding: 1rem 0;
+            transition: var(--transition);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+        
+        .navbar-brand span {
+            color: var(--secondary-color);
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            color: var(--primary-color);
+            margin: 0 0.5rem;
+            transition: var(--transition);
+        }
+        
+        .nav-link:hover {
+            color: var(--secondary-color);
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding-top: 80px;
+            background: linear-gradient(rgba(44, 62, 80, 0.9), rgba(44, 62, 80, 0.9)), 
+                        url('https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            max-width: 700px;
+        }
+        
+        .hero-badge {
+            display: inline-block;
+            background: var(--secondary-color);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            background: var(--secondary-color);
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: var(--transition);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+            text-decoration: none;
+            display: inline-block;
+            cursor: pointer;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
+            color: white;
+        }
+        
+        .btn-outline-light {
+            border: 2px solid white;
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-block;
+            cursor: pointer;
+        }
+        
+        .btn-outline-light:hover {
+            background: white;
+            color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+        
+        /* Features Section */
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 3rem;
+        }
+        
+        .section-padding {
+            padding: 5rem 0;
+        }
+        
+        .feature-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            height: 100%;
+            transition: var(--transition);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-desc {
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Modules Section */
+        .module-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            height: 100%;
+        }
+        
+        .module-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .module-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .module-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .module-body {
+            padding: 1.5rem;
+        }
+        
+        .module-features {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .module-features li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        
+        .module-features li:last-child {
+            border-bottom: none;
+        }
+        
+        .module-features li i {
+            color: var(--success-color);
+            margin-right: 0.8rem;
+        }
+        
+        /* Demo Section */
+        .demo-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .demo-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        
+        .demo-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Gate Visualization Demo */
+        .gate-demo {
+            width: 100%;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .gate-shape-demo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 100px;
+            background: var(--secondary-color);
+            border-radius: 10px 50px 50px 10px;
+            clip-path: polygon(0% 0%, 70% 0%, 100% 50%, 70% 100%, 0% 100%);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .input-node-demo {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--success-color);
+            top: 50%;
+            transform: translateY(-50%);
+            left: 20%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid white;
+            animation: pulse 2s infinite;
+        }
+        
+        .output-node-demo {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--success-color);
+            top: 50%;
+            transform: translateY(-50%);
+            right: 20%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid white;
+        }
+        
+        .connection-line-demo {
+            position: absolute;
+            height: 8px;
+            background: var(--secondary-color);
+            top: 50%;
+            transform: translateY(-50%);
+            left: calc(20% + 40px);
+            width: calc(60% - 80px);
+            border-radius: 4px;
+        }
+        
+        /* Footer */
+        .footer {
+            background: var(--dark-color);
+            color: white;
+            padding: 3rem 0 1.5rem;
+        }
+        
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+        
+        .footer-links a {
+            color: #aaa;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .footer-links a:hover {
+            color: white;
+            padding-left: 5px;
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        
+        .social-icon:hover {
+            background: var(--secondary-color);
+            transform: translateY(-5px);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.1); }
+            100% { transform: translateY(-50%) scale(1); }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .floating {
+            animation: float 5s ease-in-out infinite;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .section-padding {
+                padding: 3rem 0;
+            }
+        }
+        
+        /* Stats Counter */
+        .stats-counter {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            display: block;
+            line-height: 1;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            color: white;
+            text-align: center;
+            padding: 5rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        
+        .cta-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .cta-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Launch Application Button Fix */
+        .launch-app-btn {
+            text-decoration: none;
+            display: inline-block;
+            cursor: pointer !important;
+            pointer-events: auto !important;
+        }
+        
+        .launch-app-btn:hover {
+            text-decoration: none;
+        }
+        
+        /* Prevent smooth scrolling for external links */
+        a[href*=".html"]:not([href^="#"]):not([href^="#features"]):not([href^="#modules"]):not([href^="#demo"]):not([href^="#about"]):not([href^="#start"]) {
+            text-decoration: none;
+            cursor: pointer !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-microchip me-2"></i>Digital<span>Logic</span>Processor
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#modules">Modules</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#demo">Demo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary ms-3 launch-app-btn" href="Digital_logic_processor.html" onclick="handleAppLaunch(event)">Launch App</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 hero-content">
+                    <div class="hero-badge floating">
+                        <i class="fas fa-bolt me-2"></i>Advanced Interactive Platform
+                    </div>
+                    <h1 class="hero-title">Master Digital Logic with Interactive Visualizations</h1>
+                    <p class="hero-subtitle">The ultimate platform for learning and practicing digital logic design, Boolean algebra, combinational circuits, sequential logic, and more with hands-on interactive tools.</p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="Digital_logic_processor.html" class="btn btn-primary launch-app-btn" onclick="handleAppLaunch(event)">
+                            <i class="fas fa-play-circle me-2"></i>Launch Application
+                        </a>
+                        <a href="#demo" class="btn btn-outline-light">
+                            <i class="fas fa-eye me-2"></i>View Demo
+                        </a>
+                    </div>
+                    
+                    <div class="stats-counter">
+                        <div class="stat-item">
+                            <span class="stat-number" data-count="15">0</span>
+                            <span class="stat-label">Logic Modules</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" data-count="50">0</span>
+                            <span class="stat-label">Interactive Tools</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" data-count="1000">0</span>
+                            <span class="stat-label">Practice Problems</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="gate-demo mt-5 mt-lg-0">
+                        <div class="gate-shape-demo floating">
+                            <div class="text-center text-white d-flex align-items-center justify-content-center h-100 fw-bold">
+                                AND
+                            </div>
+                        </div>
+                        <div class="input-node-demo" style="top: 30%;">A</div>
+                        <div class="input-node-demo" style="top: 70%;">B</div>
+                        <div class="output-node-demo">Q</div>
+                        <div class="connection-line-demo" style="top: 30%;"></div>
+                        <div class="connection-line-demo" style="top: 70%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section id="features" class="section-padding">
+        <div class="container">
+            <h2 class="section-title">Powerful Features</h2>
+            <p class="section-subtitle">Experience digital logic like never before with our comprehensive set of interactive tools and visualizations</p>
+            
+            <div class="row g-4 mt-4">
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                        <h3 class="feature-title">Gate Visualizations</h3>
+                        <p class="feature-desc">Interactive animations of all logic gates (AND, OR, NOT, NAND, NOR, XOR, XNOR) with real-time truth tables.</p>
+                        <div class="text-primary fw-bold">
+                            <i class="fas fa-check-circle me-2"></i>Real-time updates
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <h3 class="feature-title">Boolean Algebra</h3>
+                        <p class="feature-desc">Complete Boolean algebra toolkit with all 11 laws, expression simplification, and step-by-step solutions.</p>
+                        <div class="text-primary fw-bold">
+                            <i class="fas fa-check-circle me-2"></i>11 Laws included
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-random"></i>
+                        </div>
+                        <h3 class="feature-title">Combinational Logic</h3>
+                        <p class="feature-desc">K-maps, SOP/POS forms, code conversions, parity generation, and logic minimization tools.</p>
+                        <div class="text-primary fw-bold">
+                            <i class="fas fa-check-circle me-2"></i>K-map solver
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <h3 class="feature-title">Sequential Logic</h3>
+                        <p class="feature-desc">Flip-flops, latches, registers, shift registers, and state machines with timing diagrams.</p>
+                        <div class="text-primary fw-bold">
+                            <i class="fas fa-check-circle me-2"></i>Clock simulations
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Number Systems</h3>
+                        <p class="feature-desc">Binary, decimal, hex, octal conversions, BCD, signed magnitude, and arithmetic operations.</p>
+                        <div class="text-primary fw-bold">
+                            <i class="fas fa-check-circle me-2"></i>All bases covered
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h3 class="feature-title">GATE Preparation</h3>
+                        <p class="feature-desc">Previous year questions, practice tests, and topic-wise quizzes for GATE exam preparation.</p>
+                        <div class="text-primary fw-bold">
+                            <i class="fas fa-check-circle me-2"></i>PYQs included
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Modules Section -->
+    <section id="modules" class="section-padding bg-light">
+        <div class="container">
+            <h2 class="section-title">Comprehensive Modules</h2>
+            <p class="section-subtitle">Explore our extensive collection of digital logic modules designed for students and professionals</p>
+            
+            <div class="row g-4 mt-4">
+                <div class="col-md-6 col-lg-4">
+                    <div class="module-card">
+                        <div class="module-header">
+                            <h3 class="module-title">Basic Logic Gates</h3>
+                            <p><i class="fas fa-microchip me-1"></i> Foundation</p>
+                        </div>
+                        <div class="module-body">
+                            <ul class="module-features">
+                                <li><i class="fas fa-check"></i> 7 Basic Gate Types</li>
+                                <li><i class="fas fa-check"></i> Interactive Truth Tables</li>
+                                <li><i class="fas fa-check"></i> Gate Animations</li>
+                                <li><i class="fas fa-check"></i> Multiple Input Support</li>
+                                <li><i class="fas fa-check"></i> Boolean Expressions</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="module-card">
+                        <div class="module-header">
+                            <h3 class="module-title">Combinational Circuits</h3>
+                            <p><i class="fas fa-project-diagram me-1"></i> Intermediate</p>
+                        </div>
+                        <div class="module-body">
+                            <ul class="module-features">
+                                <li><i class="fas fa-check"></i> Multiplexers & Decoders</li>
+                                <li><i class="fas fa-check"></i> Adders & Subtractors</li>
+                                <li><i class="fas fa-check"></i> Code Converters</li>
+                                <li><i class="fas fa-check"></i> Parity Generators</li>
+                                <li><i class="fas fa-check"></i> K-map Minimization</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="module-card">
+                        <div class="module-header">
+                            <h3 class="module-title">Sequential Logic</h3>
+                            <p><i class="fas fa-history me-1"></i> Advanced</p>
+                        </div>
+                        <div class="module-body">
+                            <ul class="module-features">
+                                <li><i class="fas fa-check"></i> Flip-Flops & Latches</li>
+                                <li><i class="fas fa-check"></i> Shift Registers</li>
+                                <li><i class="fas fa-check"></i> Counters</li>
+                                <li><i class="fas fa-check"></i> State Machines</li>
+                                <li><i class="fas fa-check"></i> Timing Diagrams</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="module-card">
+                        <div class="module-header">
+                            <h3 class="module-title">Arithmetic Operations</h3>
+                            <p><i class="fas fa-calculator me-1"></i> Computational</p>
+                        </div>
+                        <div class="module-body">
+                            <ul class="module-features">
+                                <li><i class="fas fa-check"></i> Binary Arithmetic</li>
+                                <li><i class="fas fa-check"></i> Complement Operations</li>
+                                <li><i class="fas fa-check"></i> Signed Numbers</li>
+                                <li><i class="fas fa-check"></i> Multiplication/Division</li>
+                                <li><i class="fas fa-check"></i> BCD Arithmetic</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="module-card">
+                        <div class="module-header">
+                            <h3 class="module-title">Number Systems</h3>
+                            <p><i class="fas fa-exchange-alt me-1"></i> Foundational</p>
+                        </div>
+                        <div class="module-body">
+                            <ul class="module-features">
+                                <li><i class="fas fa-check"></i> Base Conversions</li>
+                                <li><i class="fas fa-check"></i> Signed Magnitude</li>
+                                <li><i class="fas fa-check"></i> 1's & 2's Complement</li>
+                                <li><i class="fas fa-check"></i> Excess-3 Code</li>
+                                <li><i class="fas fa-check"></i> Hamming Code</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="module-card">
+                        <div class="module-header">
+                            <h3 class="module-title">GATE Preparation</h3>
+                            <p><i class="fas fa-graduation-cap me-1"></i> Exam Focused</p>
+                        </div>
+                        <div class="module-body">
+                            <ul class="module-features">
+                                <li><i class="fas fa-check"></i> Previous Year Questions</li>
+                                <li><i class="fas fa-check"></i> Topic-wise Quizzes</li>
+                                <li><i class="fas fa-check"></i> Timed Practice Tests</li>
+                                <li><i class="fas fa-check"></i> Performance Analytics</li>
+                                <li><i class="fas fa-check"></i> Solution Explanations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Demo Section -->
+    <section id="demo" class="section-padding demo-section">
+        <div class="container">
+            <h2 class="section-title text-white">Interactive Demo</h2>
+            <p class="section-subtitle text-white-50">Experience the power of our interactive logic gate visualizer</p>
+            
+            <div class="demo-container mt-5">
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <h3 class="text-white mb-4">Real-time Logic Gate Simulation</h3>
+                        <p class="text-white-50 mb-4">Watch as inputs change and see the output update in real-time. Click on input nodes to toggle their state and observe the gate's behavior.</p>
+                        
+                        <div class="d-flex flex-wrap gap-3 mb-4">
+                            <div class="bg-white rounded p-3 text-center" style="width: 120px;">
+                                <div class="fw-bold text-primary">Input A</div>
+                                <div class="fs-4 fw-bold mt-2" id="demo-input-a">0</div>
+                                <button class="btn btn-sm btn-primary mt-2" onclick="toggleDemoInput('a')">Toggle</button>
+                            </div>
+                            
+                            <div class="bg-white rounded p-3 text-center" style="width: 120px;">
+                                <div class="fw-bold text-primary">Input B</div>
+                                <div class="fs-4 fw-bold mt-2" id="demo-input-b">0</div>
+                                <button class="btn btn-sm btn-primary mt-2" onclick="toggleDemoInput('b')">Toggle</button>
+                            </div>
+                            
+                            <div class="bg-success text-white rounded p-3 text-center" style="width: 120px;">
+                                <div class="fw-bold">Output Q</div>
+                                <div class="fs-4 fw-bold mt-2" id="demo-output">0</div>
+                                <div class="small mt-2">AND Gate</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label text-white">Select Gate Type:</label>
+                            <select class="form-select" id="demo-gate-select" onchange="changeDemoGate()">
+                                <option value="AND">AND Gate</option>
+                                <option value="OR">OR Gate</option>
+                                <option value="XOR">XOR Gate</option>
+                                <option value="NAND">NAND Gate</option>
+                                <option value="NOR">NOR Gate</option>
+                            </select>
+                        </div>
+                        
+                        <div class="truth-table-demo bg-dark rounded p-3">
+                            <h5 class="text-white mb-3">Truth Table</h5>
+                            <table class="table table-dark table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>A</th>
+                                        <th>B</th>
+                                        <th>Q</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="demo-truth-table">
+                                    <!-- Filled by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6 mt-5 mt-lg-0">
+                        <div class="gate-demo">
+                            <div class="gate-shape-demo floating" id="demo-gate-shape">
+                                <div class="text-center text-white d-flex align-items-center justify-content-center h-100 fw-bold" id="demo-gate-label">
+                                    AND
+                                </div>
+                            </div>
+                            <div class="input-node-demo" style="top: 30%;" id="demo-node-a">A</div>
+                            <div class="input-node-demo" style="top: 70%;" id="demo-node-b">B</div>
+                            <div class="output-node-demo" id="demo-node-q">Q</div>
+                            <div class="connection-line-demo" style="top: 30%;" id="demo-line-a"></div>
+                            <div class="connection-line-demo" style="top: 70%;" id="demo-line-b"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section id="start" class="cta-section">
+        <div class="container">
+            <h2 class="cta-title">Ready to Master Digital Logic?</h2>
+            <p class="cta-subtitle">Join thousands of students and professionals who are already using our platform to learn, practice, and excel in digital logic design.</p>
+            
+            <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
+                <a href="Digital_logic_processor.html" class="btn btn-light btn-lg launch-app-btn" onclick="handleAppLaunch(event)">
+                    <i class="fas fa-rocket me-2"></i>Launch Full Application
+                </a>
+                <a href="#features" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-info-circle me-2"></i>Learn More
+                </a>
+            </div>
+            
+            <div class="row mt-5">
+                <div class="col-md-4 text-center mt-4">
+                    <div class="display-4 text-white mb-2"><i class="fas fa-user-graduate"></i></div>
+                    <h4 class="text-white">For Students</h4>
+                    <p class="text-white-50">Learn concepts interactively with step-by-step guidance.</p>
+                </div>
+                <div class="col-md-4 text-center mt-4">
+                    <div class="display-4 text-white mb-2"><i class="fas fa-chalkboard-teacher"></i></div>
+                    <h4 class="text-white">For Educators</h4>
+                    <p class="text-white-50">Use as a teaching tool with visual demonstrations.</p>
+                </div>
+                <div class="col-md-4 text-center mt-4">
+                    <div class="display-4 text-white mb-2"><i class="fas fa-briefcase"></i></div>
+                    <h4 class="text-white">For Professionals</h4>
+                    <p class="text-white-50">Refresh concepts and prepare for technical interviews.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="footer" id="about">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4 mb-lg-0">
+                    <h4 class="text-white mb-4">
+                        <i class="fas fa-microchip me-2"></i>Digital Logic Processor
+                    </h4>
+                    <p class="text-white-50">An interactive platform for learning and practicing digital logic design, Boolean algebra, combinational circuits, sequential logic, and more.</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="social-icon">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-icon">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="social-icon">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                    <h5 class="text-white mb-4">Quick Links</h5>
+                    <ul class="footer-links">
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#modules">Modules</a></li>
+                        <li><a href="#demo">Demo</a></li>
+                        <li><a href="#start">Get Started</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <h5 class="text-white mb-4">Modules</h5>
+                    <ul class="footer-links">
+                        <li><a href="Digital_logic_processor.html">Logic Gates</a></li>
+                        <li><a href="Digital_logic_processor.html">Boolean Algebra</a></li>
+                        <li><a href="Digital_logic_processor.html">Combinational Logic</a></li>
+                        <li><a href="Digital_logic_processor.html">Sequential Logic</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="text-white mb-4">Contact</h5>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-envelope me-2"></i> support@digitallogic.edu</li>
+                        <li><i class="fas fa-globe me-2"></i> www.digitallogicprocessor.com</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i> Virtual Learning Platform</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2023 Digital Logic Processor. All rights reserved. Designed for educational purposes.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Handle application launch button clicks
+        function handleAppLaunch(event) {
+            // Prevent smooth scrolling interference
+            event.stopPropagation();
+            // The link will navigate normally
+            console.log("Launching Digital Logic Processor application...");
+            return true;
+        }
+        
+        // Demo functionality
+        let demoInputs = { a: 0, b: 0 };
+        let demoGate = 'AND';
+        
+        function toggleDemoInput(input) {
+            demoInputs[input] = demoInputs[input] === 0 ? 1 : 0;
+            document.getElementById(`demo-input-${input}`).textContent = demoInputs[input];
+            document.getElementById(`demo-node-${input}`).style.background = demoInputs[input] === 1 ? '#27ae60' : '#e74c3c';
+            
+            updateDemoOutput();
+            updateDemoTruthTable();
+        }
+        
+        function changeDemoGate() {
+            demoGate = document.getElementById('demo-gate-select').value;
+            document.getElementById('demo-gate-label').textContent = demoGate;
+            updateDemoOutput();
+            updateDemoTruthTable();
+        }
+        
+        function updateDemoOutput() {
+            let output = 0;
+            
+            switch(demoGate) {
+                case 'AND':
+                    output = demoInputs.a && demoInputs.b;
+                    break;
+                case 'OR':
+                    output = demoInputs.a || demoInputs.b;
+                    break;
+                case 'XOR':
+                    output = demoInputs.a ^ demoInputs.b;
+                    break;
+                case 'NAND':
+                    output = !(demoInputs.a && demoInputs.b) ? 1 : 0;
+                    break;
+                case 'NOR':
+                    output = !(demoInputs.a || demoInputs.b) ? 1 : 0;
+                    break;
+            }
+            
+            document.getElementById('demo-output').textContent = output;
+            document.getElementById('demo-node-q').style.background = output === 1 ? '#27ae60' : '#e74c3c';
+        }
+        
+        function updateDemoTruthTable() {
+            const tableBody = document.getElementById('demo-truth-table');
+            tableBody.innerHTML = '';
+            
+            const rows = [
+                [0, 0],
+                [0, 1],
+                [1, 0],
+                [1, 1]
+            ];
+            
+            rows.forEach(row => {
+                const tr = document.createElement('tr');
+                
+                // Highlight current row
+                if (row[0] === demoInputs.a && row[1] === demoInputs.b) {
+                    tr.classList.add('table-primary');
+                }
+                
+                const aCell = document.createElement('td');
+                aCell.textContent = row[0];
+                
+                const bCell = document.createElement('td');
+                bCell.textContent = row[1];
+                
+                const qCell = document.createElement('td');
+                
+                let output = 0;
+                switch(demoGate) {
+                    case 'AND':
+                        output = row[0] && row[1];
+                        break;
+                    case 'OR':
+                        output = row[0] || row[1];
+                        break;
+                    case 'XOR':
+                        output = row[0] ^ row[1];
+                        break;
+                    case 'NAND':
+                        output = !(row[0] && row[1]) ? 1 : 0;
+                        break;
+                    case 'NOR':
+                        output = !(row[0] || row[1]) ? 1 : 0;
+                        break;
+                }
+                
+                qCell.textContent = output;
+                
+                tr.appendChild(aCell);
+                tr.appendChild(bCell);
+                tr.appendChild(qCell);
+                tableBody.appendChild(tr);
+            });
+        }
+        
+        // Initialize demo
+        updateDemoOutput();
+        updateDemoTruthTable();
+        
+        // Counter animation
+        function animateCounter() {
+            const counters = document.querySelectorAll('.stat-number');
+            const speed = 200;
+            
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-count'));
+                const increment = target / speed;
+                let current = 0;
+                
+                const updateCount = () => {
+                    if (current < target) {
+                        current += increment;
+                        counter.textContent = Math.floor(current);
+                        setTimeout(updateCount, 1);
+                    } else {
+                        counter.textContent = target;
+                    }
+                };
+                
+                updateCount();
+            });
+        }
+        
+        // Initialize counter animation when in view
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounter();
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
+        
+        const statsSection = document.querySelector('.stats-counter');
+        if (statsSection) {
+            observer.observe(statsSection);
+        }
+        
+        // Smooth scrolling for anchor links only (not external links)
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.padding = '0.5rem 0';
+                navbar.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.1)';
+            } else {
+                navbar.style.padding = '1rem 0';
+                navbar.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.1)';
+            }
+        });
+        
+        // Ensure all external HTML links work properly
+        document.querySelectorAll('a[href*=".html"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Don't prevent default for actual HTML file links
+                if (this.getAttribute('href').includes('.html')) {
+                    // Let it navigate normally
+                    return true;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

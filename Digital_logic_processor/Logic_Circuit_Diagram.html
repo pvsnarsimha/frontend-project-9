@@ -1,0 +1,1570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogicBlocks Circuit Diagrams</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --dark-color: #333;
+            --light-color: #f8f9fa;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-glow {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-glow:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 111, 165, 0.4);
+        }
+        
+        .btn-glow.active {
+            background: var(--secondary-color);
+            box-shadow: 0 0 20px rgba(74, 111, 165, 0.6);
+        }
+        
+        /* Circuit Diagram Styles */
+        .circuit-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            margin: 20px auto;
+            overflow: visible;
+        }
+        
+        .schematic-line {
+            position: absolute;
+            background: #333;
+            z-index: 1;
+        }
+        
+        .horizontal-line {
+            height: 2px;
+        }
+        
+        .vertical-line {
+            width: 2px;
+        }
+        
+        .input-node {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #333;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            z-index: 3;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .input-node.active {
+            background: #4CAF50;
+            box-shadow: 0 0 10px #4CAF50;
+        }
+        
+        .output-node {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #333;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            z-index: 3;
+            font-weight: bold;
+        }
+        
+        .output-node.active {
+            background: #FF9800;
+            box-shadow: 0 0 15px #FF9800;
+        }
+        
+        .node-label {
+            position: absolute;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            z-index: 4;
+        }
+        
+        .connection-dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #333;
+            border-radius: 50%;
+            z-index: 2;
+        }
+        
+        .mux-body {
+            position: absolute;
+            width: 80px;
+            height: 120px;
+            background: #e3f2fd;
+            border: 2px solid #1976d2;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #1976d2;
+            z-index: 2;
+        }
+        
+        .decoder-body {
+            position: absolute;
+            width: 70px;
+            height: 180px;
+            background: #f1f8e9;
+            border: 2px solid #7cb342;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #558b2f;
+            z-index: 2;
+        }
+        
+        .encoder-body {
+            position: absolute;
+            width: 80px;
+            height: 150px;
+            background: #fff3e0;
+            border: 2px solid #f57c00;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #ef6c00;
+            z-index: 2;
+        }
+        
+        /* Truth Table Styles */
+        .truth-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .truth-table th {
+            background: var(--primary-color);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+            position: sticky;
+            top: 0;
+        }
+        
+        .truth-table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        
+        .truth-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .truth-table .active-cell {
+            background: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .truth-table .highlight-row {
+            background: #fffacd !important;
+            animation: pulse 0.5s ease;
+        }
+        
+        @keyframes pulse {
+            0% { background-color: #fffacd; }
+            50% { background-color: #ffeb3b; }
+            100% { background-color: #fffacd; }
+        }
+        
+        .table-responsive {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .input-toggle {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 25px;
+            margin: 0 10px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 25px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #4CAF50;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .stats-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 5px 0;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .circuit-title {
+            text-align: center;
+            color: var(--dark-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .logicblocks-header {
+            background: linear-gradient(135deg, #4a6fa5 0%, #166088 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .animation-controls {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        
+        .animation-speed {
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .animation-progress {
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .current-step {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <div class="logicblocks-header">
+            <h1 class="text-center mb-0">
+                <i class="fas fa-microchip me-2"></i>
+                LogicBlocks Circuit Diagrams
+            </h1>
+            <!-- Add this button in the header -->
+    <div class="text-center mt-3">
+        <a href="Digital_logic_processor.html" class="btn btn-outline-light btn-sm">
+            <i class="fas fa-arrow-left me-1"></i> Back to Gate Visualization
+        </a>
+    </div>
+
+            <p class="text-center mb-0 mt-2">Interactive MUX/DEMUX and Decoder Circuits with Truth Tables</p>
+        </div>
+        
+        <div class="glass-card">
+            <div class="row">
+                <div class="col-md-4">
+                    <h4 class="circuit-title">Circuit Selection</h4>
+                    <div class="d-grid gap-2">
+                        <button class="btn-glow" id="circuit-mux2-btn">
+                            <i class="fas fa-exchange-alt me-2"></i>2:1 MUX Circuit
+                        </button>
+                        <button class="btn-glow" id="circuit-mux4-btn">
+                            <i class="fas fa-exchange-alt me-2"></i>4:1 MUX Circuit
+                        </button>
+                        <button class="btn-glow" id="circuit-decoder-btn">
+                            <i class="fas fa-code-branch me-2"></i>2-to-4 Decoder
+                        </button>
+                        <button class="btn-glow" id="circuit-demux-btn">
+                            <i class="fas fa-share-alt me-2"></i>1:2 DEMUX Circuit
+                        </button>
+                        <button class="btn-glow" id="circuit-decoder3x8-btn">
+                            <i class="fas fa-project-diagram me-2"></i>3-to-8 Decoder
+                        </button>
+                        <button class="btn-glow" id="circuit-priority-encoder-btn">
+                            <i class="fas fa-sort-numeric-down me-2"></i>Priority Encoder
+                        </button>
+                    </div>
+                    
+                    <div id="circuit-controls" class="mt-4">
+                        <h5>Circuit Configuration</h5>
+                        <div id="circuit-specific-controls">
+                            <!-- Dynamic controls will be generated here -->
+                        </div>
+                        
+                        <div class="animation-controls">
+                            <div class="input-toggle">
+                                <span class="input-label">Animation Speed:</span>
+                                <input type="range" min="200" max="2000" value="800" class="animation-speed" id="animation-speed">
+                                <span class="ms-2" id="speed-label">800ms</span>
+                            </div>
+                            <div id="animation-progress-container" style="display: none;">
+                                <div class="input-toggle">
+                                    <span class="input-label">Progress:</span>
+                                    <progress id="animation-progress" value="0" max="100" class="animation-progress"></progress>
+                                    <span class="ms-2" id="progress-percent">0%</span>
+                                </div>
+                                <div class="current-step" id="current-step">Step 0/0</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-3">
+                        <button class="btn-glow" id="animate-circuit-btn">
+                            <i class="fas fa-play-circle me-2"></i>Animate Circuit
+                        </button>
+                        <button class="btn-glow" id="reset-circuit-btn">
+                            <i class="fas fa-redo me-2"></i>Reset Circuit
+                        </button>
+                        <button class="btn-glow" id="show-circuit-truth-table-btn">
+                            <i class="fas fa-table me-2"></i>Show Truth Table
+                        </button>
+                    </div>
+                    
+                    <div class="stats-card mt-4">
+                        <h5>Circuit Output</h5>
+                        <div class="stats-value" id="circuit-output">-</div>
+                        <small>Current Output State</small>
+                    </div>
+                </div>
+                
+                <div class="col-md-8">
+                    <div class="glass-card">
+                        <h4 id="circuit-diagram-title" class="circuit-title">Select a Circuit</h4>
+                        <div class="circuit-container" id="circuit-container">
+                            <div class="text-center" style="margin-top: 150px;">
+                                <i class="fas fa-sitemap fa-4x" style="color: #4a6fa5; opacity: 0.3;"></i>
+                                <p class="mt-3">Select a circuit type from the left to visualize its schematic diagram</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card mt-3">
+                        <h5 id="circuit-operation-title">Circuit Information</h5>
+                        <div id="circuit-operation-explanation">
+                            Select a circuit type to see its detailed description and operation.
+                        </div>
+                    </div>
+                    
+                    <div id="circuit-truth-table-container" class="glass-card mt-3" style="display: none;">
+                        <h5 class="circuit-title">Truth Table</h5>
+                        <div class="table-responsive">
+                            <table class="truth-table" id="circuit-truth-table">
+                                <!-- Truth table will be generated here -->
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentCircuitType = null;
+        let circuitInputs = [];
+        let isCircuitAnimating = false;
+        let animationInterval = null;
+        let currentAnimationStep = 0;
+        let totalAnimationSteps = 0;
+        let animationSpeed = 800;
+        let animationData = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('circuit-mux2-btn').addEventListener('click', () => selectCircuitType('mux2'));
+            document.getElementById('circuit-mux4-btn').addEventListener('click', () => selectCircuitType('mux4'));
+            document.getElementById('circuit-decoder-btn').addEventListener('click', () => selectCircuitType('decoder'));
+            document.getElementById('circuit-demux-btn').addEventListener('click', () => selectCircuitType('demux'));
+            document.getElementById('circuit-decoder3x8-btn').addEventListener('click', () => selectCircuitType('decoder3x8'));
+            document.getElementById('circuit-priority-encoder-btn').addEventListener('click', () => selectCircuitType('priority-encoder'));
+            
+            document.getElementById('animate-circuit-btn').addEventListener('click', animateCircuit);
+            document.getElementById('reset-circuit-btn').addEventListener('click', resetCircuit);
+            document.getElementById('show-circuit-truth-table-btn').addEventListener('click', toggleTruthTable);
+            
+            document.getElementById('animation-speed').addEventListener('input', function() {
+                animationSpeed = parseInt(this.value);
+                document.getElementById('speed-label').textContent = animationSpeed + 'ms';
+                if (isCircuitAnimating) {
+                    stopAnimation();
+                    startAnimation();
+                }
+            });
+        });
+
+        function selectCircuitType(type) {
+            currentCircuitType = type;
+            
+            document.querySelectorAll('.btn-glow').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            generateCircuitDiagram(type);
+            updateCircuitControls(type);
+            updateCircuitInformation(type);
+            generateTruthTable();
+            
+            console.log(`Selected circuit: ${type}`);
+        }
+
+        function generateCircuitDiagram(type) {
+            const container = document.getElementById('circuit-container');
+            container.innerHTML = '';
+            
+            switch(type) {
+                case 'mux2':
+                    generateMUX2Circuit(container);
+                    break;
+                case 'mux4':
+                    generateMUX4Circuit(container);
+                    break;
+                case 'decoder':
+                    generateDecoderCircuit(container);
+                    break;
+                case 'demux':
+                    generateDEMUXCircuit(container);
+                    break;
+                case 'decoder3x8':
+                    generateDecoder3x8Circuit(container);
+                    break;
+                case 'priority-encoder':
+                    generatePriorityEncoderCircuit(container);
+                    break;
+            }
+            
+            document.getElementById('circuit-diagram-title').textContent = getCircuitTitle(type);
+        }
+
+        function generateMUX2Circuit(container) {
+            circuitInputs = [0, 0, 0];
+            
+            const muxBody = document.createElement('div');
+            muxBody.className = 'mux-body';
+            muxBody.style.left = '200px';
+            muxBody.style.top = '150px';
+            muxBody.textContent = '2:1 MUX';
+            container.appendChild(muxBody);
+            
+            createInputNode(container, 100, 130, 'I0', 0);
+            createLine(container, 120, 140, 200, 140);
+            
+            createInputNode(container, 100, 190, 'I1', 1);
+            createLine(container, 120, 200, 200, 200);
+            
+            createInputNode(container, 150, 80, 'S', 2);
+            createLine(container, 160, 100, 160, 140);
+            createConnectionDot(container, 160, 140);
+            
+            createOutputNode(container, 280, 160, 'Y', 0);
+            createLine(container, 280, 160, 320, 160);
+            
+            createConnectionDot(container, 200, 140);
+            createConnectionDot(container, 200, 200);
+            createConnectionDot(container, 280, 160);
+        }
+
+        function generateMUX4Circuit(container) {
+            circuitInputs = [0, 0, 0, 0, 0, 0];
+            
+            const muxBody = document.createElement('div');
+            muxBody.className = 'mux-body';
+            muxBody.style.left = '200px';
+            muxBody.style.top = '100px';
+            muxBody.style.height = '180px';
+            muxBody.textContent = '4:1 MUX';
+            container.appendChild(muxBody);
+            
+            const inputYPositions = [90, 130, 170, 210];
+            for (let i = 0; i < 4; i++) {
+                createInputNode(container, 100, inputYPositions[i], `I${i}`, i);
+                createLine(container, 120, inputYPositions[i] + 10, 200, inputYPositions[i] + 10);
+            }
+            
+            createInputNode(container, 130, 50, 'S0', 4);
+            createInputNode(container, 180, 50, 'S1', 5);
+            
+            createLine(container, 150, 70, 150, 100);
+            createLine(container, 190, 70, 190, 100);
+            
+            createOutputNode(container, 280, 150, 'Y', 0);
+            createLine(container, 280, 150, 320, 150);
+        }
+
+        function generateDecoderCircuit(container) {
+            circuitInputs = [0, 0, 0];
+            
+            const decoderBody = document.createElement('div');
+            decoderBody.className = 'decoder-body';
+            decoderBody.style.left = '200px';
+            decoderBody.style.top = '100px';
+            decoderBody.textContent = '2-to-4\nDecoder';
+            decoderBody.style.fontSize = '12px';
+            decoderBody.style.lineHeight = '1.2';
+            container.appendChild(decoderBody);
+            
+            createInputNode(container, 100, 130, 'A', 0);
+            createLine(container, 120, 140, 200, 140);
+            
+            createInputNode(container, 100, 180, 'B', 1);
+            createLine(container, 120, 190, 200, 190);
+            
+            createInputNode(container, 100, 230, 'E', 2);
+            createLine(container, 120, 240, 200, 240);
+            
+            const outputYPositions = [110, 150, 190, 230];
+            for (let i = 0; i < 4; i++) {
+                createOutputNode(container, 270, outputYPositions[i], `D${i}`, i);
+                createLine(container, 270, outputYPositions[i], 320, outputYPositions[i]);
+            }
+        }
+
+        function generateDEMUXCircuit(container) {
+            circuitInputs = [0, 0];
+            
+            const demuxBody = document.createElement('div');
+            demuxBody.className = 'mux-body';
+            demuxBody.style.left = '200px';
+            demuxBody.style.top = '150px';
+            demuxBody.textContent = '1:2 DEMUX';
+            container.appendChild(demuxBody);
+            
+            createInputNode(container, 100, 160, 'I', 0);
+            createLine(container, 120, 170, 200, 170);
+            
+            createInputNode(container, 150, 100, 'S', 1);
+            createLine(container, 160, 120, 160, 150);
+            
+            createOutputNode(container, 280, 130, 'Y0', 0);
+            createOutputNode(container, 280, 190, 'Y1', 1);
+            
+            createLine(container, 280, 130, 320, 130);
+            createLine(container, 280, 190, 320, 190);
+        }
+
+        function generateDecoder3x8Circuit(container) {
+            circuitInputs = [0, 0, 0, 0];
+            
+            const decoderBody = document.createElement('div');
+            decoderBody.className = 'decoder-body';
+            decoderBody.style.left = '200px';
+            decoderBody.style.top = '50px';
+            decoderBody.style.height = '280px';
+            decoderBody.textContent = '3:8\nDecoder';
+            decoderBody.style.fontSize = '12px';
+            decoderBody.style.lineHeight = '1.2';
+            container.appendChild(decoderBody);
+            
+            createInputNode(container, 100, 100, 'A', 0);
+            createInputNode(container, 100, 160, 'B', 1);
+            createInputNode(container, 100, 220, 'C', 2);
+            
+            createLine(container, 120, 110, 200, 110);
+            createLine(container, 120, 170, 200, 170);
+            createLine(container, 120, 230, 200, 230);
+            
+            createInputNode(container, 100, 280, 'E', 3);
+            createLine(container, 120, 290, 200, 290);
+            
+            const outputYPositions = [70, 100, 130, 160, 190, 220, 250, 280];
+            for (let i = 0; i < 8; i++) {
+                createOutputNode(container, 270, outputYPositions[i], `D${i}`, i);
+                createLine(container, 270, outputYPositions[i], 320, outputYPositions[i]);
+            }
+        }
+
+        function generatePriorityEncoderCircuit(container) {
+            circuitInputs = [0, 0, 0, 0];
+            
+            const encoderBody = document.createElement('div');
+            encoderBody.className = 'encoder-body';
+            encoderBody.style.left = '200px';
+            encoderBody.style.top = '130px';
+            encoderBody.textContent = 'Priority\nEncoder';
+            encoderBody.style.fontSize = '12px';
+            encoderBody.style.lineHeight = '1.2';
+            container.appendChild(encoderBody);
+            
+            const inputYPositions = [100, 140, 180, 220];
+            for (let i = 0; i < 4; i++) {
+                createInputNode(container, 100, inputYPositions[i], `I${i}`, i);
+                createLine(container, 120, inputYPositions[i] + 10, 200, inputYPositions[i] + 10);
+            }
+            
+            createOutputNode(container, 280, 130, 'Y0', 0);
+            createOutputNode(container, 280, 170, 'Y1', 1);
+            createOutputNode(container, 280, 210, 'V', 2);
+            
+            createLine(container, 280, 130, 320, 130);
+            createLine(container, 280, 170, 320, 170);
+            createLine(container, 280, 210, 320, 210);
+        }
+
+        function createInputNode(container, x, y, label, index) {
+            const node = document.createElement('div');
+            node.className = 'input-node';
+            node.id = `input-${index}`;
+            node.style.left = `${x}px`;
+            node.style.top = `${y}px`;
+            node.textContent = label;
+            
+            node.addEventListener('click', () => toggleInput(index));
+            container.appendChild(node);
+            
+            const nodeLabel = document.createElement('div');
+            nodeLabel.className = 'node-label';
+            nodeLabel.textContent = label;
+            nodeLabel.style.left = `${x - 25}px`;
+            nodeLabel.style.top = `${y + 25}px`;
+            container.appendChild(nodeLabel);
+            
+            return node;
+        }
+
+        function createOutputNode(container, x, y, label, index = 0) {
+            const node = document.createElement('div');
+            node.className = 'output-node';
+            node.id = `output-${index}`;
+            node.style.left = `${x}px`;
+            node.style.top = `${y}px`;
+            node.textContent = label;
+            container.appendChild(node);
+            
+            const nodeLabel = document.createElement('div');
+            nodeLabel.className = 'node-label';
+            nodeLabel.textContent = label;
+            nodeLabel.style.left = `${x + 30}px`;
+            nodeLabel.style.top = `${y + 8}px`;
+            container.appendChild(nodeLabel);
+            
+            return node;
+        }
+
+        function createLine(container, x1, y1, x2, y2) {
+            const line = document.createElement('div');
+            line.className = 'schematic-line';
+            
+            if (x1 === x2) {
+                line.className += ' vertical-line';
+                line.style.left = `${x1 - 1}px`;
+                line.style.top = `${Math.min(y1, y2)}px`;
+                line.style.height = `${Math.abs(y2 - y1)}px`;
+            } else {
+                line.className += ' horizontal-line';
+                line.style.left = `${Math.min(x1, x2)}px`;
+                line.style.top = `${y1 - 1}px`;
+                line.style.width = `${Math.abs(x2 - x1)}px`;
+            }
+            
+            container.appendChild(line);
+        }
+
+        function createConnectionDot(container, x, y) {
+            const dot = document.createElement('div');
+            dot.className = 'connection-dot';
+            dot.style.left = `${x - 4}px`;
+            dot.style.top = `${y - 4}px`;
+            container.appendChild(dot);
+        }
+
+        function toggleInput(index) {
+            if (isCircuitAnimating) return;
+            
+            circuitInputs[index] = circuitInputs[index] ? 0 : 1;
+            
+            const inputNode = document.getElementById(`input-${index}`);
+            if (inputNode) {
+                inputNode.classList.toggle('active', circuitInputs[index] === 1);
+            }
+            
+            const toggle = document.getElementById(`toggle-${index}`);
+            if (toggle) {
+                toggle.checked = circuitInputs[index] === 1;
+            }
+            
+            const label = document.getElementById(`toggle-label-${index}`);
+            if (label) {
+                label.textContent = circuitInputs[index];
+            }
+            
+            calculateCircuitOutput();
+        }
+
+        function updateCircuitControls(type) {
+            const controlsDiv = document.getElementById('circuit-specific-controls');
+            controlsDiv.innerHTML = '';
+            
+            let controlHTML = '';
+            let inputCount = 0;
+            
+            switch(type) {
+                case 'mux2':
+                    inputCount = 3;
+                    controlHTML = `
+                        <div class="input-toggle">
+                            <span class="input-label">Input I0:</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-0">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="ms-2" id="toggle-label-0">0</span>
+                        </div>
+                        <div class="input-toggle">
+                            <span class="input-label">Input I1:</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-1">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="ms-2" id="toggle-label-1">0</span>
+                        </div>
+                        <div class="input-toggle">
+                            <span class="input-label">Select S:</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-2">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="ms-2" id="toggle-label-2">0</span>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'mux4':
+                    inputCount = 6;
+                    controlHTML = `
+                        ${[0,1,2,3].map(i => `
+                        <div class="input-toggle">
+                            <span class="input-label">Input I${i}:</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-${i}">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="ms-2" id="toggle-label-${i}">0</span>
+                        </div>
+                        `).join('')}
+                        <div class="input-toggle">
+                            <span class="input-label">Select S0:</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-4">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="ms-2" id="toggle-label-4">0</span>
+                        </div>
+                        <div class="input-toggle">
+                            <span class="input-label">Select S1:</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-5">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="ms-2" id="toggle-label-5">0</span>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'decoder':
+                    inputCount = 3;
+                    controlHTML = `
+                        <div class="input-toggle">
+                            <span class="input-label">Input A:</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-0">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="ms-2" id="toggle-label-0">0</span>
+                        </div>
+                        <div class="input-toggle">
+                            <span class="input-label">Input B:</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-1">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="ms-2" id="toggle-label-1">0</span>
+                        </div>
+                        <div class="input-toggle">
+                            <span class="input-label">Enable E:</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-2">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="ms-2" id="toggle-label-2">0</span>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'demux':
+                    inputCount = 2;
+                    controlHTML = `
+                        <div class="input-toggle">
+                            <span class="input-label">Input I:</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-0">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="ms-2" id="toggle-label-0">0</span>
+                        </div>
+                        <div class="input-toggle">
+                            <span class="input-label">Select S:</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-1">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="ms-2" id="toggle-label-1">0</span>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'decoder3x8':
+                    inputCount = 4;
+                    controlHTML = `
+                        <div class="input-toggle">
+                            <span class="input-label">Input A:</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-0">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="ms-2" id="toggle-label-0">0</span>
+                        </div>
+                        <div class="input-toggle">
+                            <span class="input-label">Input B:</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-1">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="ms-2" id="toggle-label-1">0</span>
+                        </div>
+                        <div class="input-toggle">
+                            <span class="input-label">Input C:</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-2">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="ms-2" id="toggle-label-2">0</span>
+                        </div>
+                        <div class="input-toggle">
+                            <span class="input-label">Enable E:</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-3">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="ms-2" id="toggle-label-3">0</span>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'priority-encoder':
+                    inputCount = 4;
+                    controlHTML = `
+                        ${[0,1,2,3].map(i => `
+                        <div class="input-toggle">
+                            <span class="input-label">Input I${i}:</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-${i}">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="ms-2" id="toggle-label-${i}">0</span>
+                        </div>
+                        `).join('')}
+                    `;
+                    break;
+            }
+            
+            controlsDiv.innerHTML = controlHTML;
+            
+            for (let i = 0; i < inputCount; i++) {
+                const toggle = document.getElementById(`toggle-${i}`);
+                if (toggle) {
+                    toggle.checked = circuitInputs[i] === 1;
+                    toggle.addEventListener('change', () => toggleInput(i));
+                    
+                    const label = document.getElementById(`toggle-label-${i}`);
+                    if (label) {
+                        label.textContent = circuitInputs[i];
+                    }
+                }
+            }
+        }
+
+        function calculateCircuitOutput() {
+            let output = '';
+            
+            switch(currentCircuitType) {
+                case 'mux2':
+                    const mux2Output = circuitInputs[2] === 0 ? circuitInputs[0] : circuitInputs[1];
+                    output = `Y = ${mux2Output}`;
+                    updateOutputNode(0, mux2Output);
+                    break;
+                    
+                case 'mux4':
+                    const select = (circuitInputs[4] << 1) | circuitInputs[5];
+                    const mux4Output = circuitInputs[select];
+                    output = `Y = I${select} = ${mux4Output}`;
+                    updateOutputNode(0, mux4Output);
+                    break;
+                    
+                case 'decoder':
+                    if (circuitInputs[2] === 1) {
+                        const select = (circuitInputs[0] << 1) | circuitInputs[1];
+                        output = `D${select} = 1`;
+                        for (let i = 0; i < 4; i++) {
+                            updateOutputNode(i, i === select ? 1 : 0);
+                        }
+                    } else {
+                        output = 'All outputs = 0 (Disabled)';
+                        for (let i = 0; i < 4; i++) {
+                            updateOutputNode(i, 0);
+                        }
+                    }
+                    break;
+                    
+                case 'demux':
+                    if (circuitInputs[1] === 0) {
+                        output = `Y0 = ${circuitInputs[0]}, Y1 = 0`;
+                        updateOutputNode(0, circuitInputs[0]);
+                        updateOutputNode(1, 0);
+                    } else {
+                        output = `Y0 = 0, Y1 = ${circuitInputs[0]}`;
+                        updateOutputNode(0, 0);
+                        updateOutputNode(1, circuitInputs[0]);
+                    }
+                    break;
+                    
+                case 'decoder3x8':
+                    if (circuitInputs[3] === 1) {
+                        const select = (circuitInputs[0] << 2) | (circuitInputs[1] << 1) | circuitInputs[2];
+                        output = `D${select} = 1`;
+                        for (let i = 0; i < 8; i++) {
+                            updateOutputNode(i, i === select ? 1 : 0);
+                        }
+                    } else {
+                        output = 'All outputs = 0 (Disabled)';
+                        for (let i = 0; i < 8; i++) {
+                            updateOutputNode(i, 0);
+                        }
+                    }
+                    break;
+                    
+                case 'priority-encoder':
+                    let activeInput = -1;
+                    for (let i = 3; i >= 0; i--) {
+                        if (circuitInputs[i] === 1) {
+                            activeInput = i;
+                            break;
+                        }
+                    }
+                    
+                    if (activeInput >= 0) {
+                        const y1 = (activeInput >> 1) & 1;
+                        const y0 = activeInput & 1;
+                        output = `Y1=${y1}, Y0=${y0}, V=1`;
+                        updateOutputNode(0, y0);
+                        updateOutputNode(1, y1);
+                        updateOutputNode(2, 1);
+                    } else {
+                        output = 'Y1=0, Y0=0, V=0';
+                        updateOutputNode(0, 0);
+                        updateOutputNode(1, 0);
+                        updateOutputNode(2, 0);
+                    }
+                    break;
+            }
+            
+            document.getElementById('circuit-output').textContent = output;
+            return output;
+        }
+
+        function updateOutputNode(index, value) {
+            const outputNode = document.getElementById(`output-${index}`);
+            if (outputNode) {
+                outputNode.classList.toggle('active', value === 1);
+            }
+        }
+
+        function updateCircuitInformation(type) {
+            const title = document.getElementById('circuit-operation-title');
+            const explanation = document.getElementById('circuit-operation-explanation');
+            
+            const info = {
+                'mux2': {
+                    title: '2:1 Multiplexer',
+                    explanation: 'A multiplexer selects one of several input signals and forwards it to a single output line. The 2:1 MUX has 2 inputs (I0, I1), 1 select line (S), and 1 output (Y). When S=0, output Y=I0. When S=1, output Y=I1.'
+                },
+                'mux4': {
+                    title: '4:1 Multiplexer',
+                    explanation: 'A 4:1 multiplexer selects one of four input signals based on two select lines (S0, S1). The select lines form a 2-bit binary address (00-11) to choose the corresponding input (I0-I3). Output Y = I[S1S0].'
+                },
+                'decoder': {
+                    title: '2-to-4 Decoder',
+                    explanation: 'A decoder converts binary information from n input lines to a maximum of 2^n unique output lines. The 2-to-4 decoder has 2 inputs (A, B), 1 enable (E), and 4 outputs (D0-D3). When E=1, exactly one output is active based on binary input AB.'
+                },
+                'demux': {
+                    title: '1:2 Demultiplexer',
+                    explanation: 'A demultiplexer performs the opposite function of a multiplexer. It takes a single input and routes it to one of multiple output lines based on select lines. The 1:2 DEMUX has 1 input (I), 1 select (S), and 2 outputs (Y0, Y1). When S=0, Y0=I; when S=1, Y1=I.'
+                },
+                'decoder3x8': {
+                    title: '3-to-8 Decoder',
+                    explanation: 'A 3-to-8 decoder converts 3 binary inputs (A, B, C) into 8 unique outputs (D0-D7). When enable (E) is active, exactly one of the 8 outputs is activated based on the 3-bit input value ABC.'
+                },
+                'priority-encoder': {
+                    title: 'Priority Encoder',
+                    explanation: 'A priority encoder encodes multiple input lines into a smaller number of output lines. It prioritizes inputs when multiple are active. This 4-to-2 priority encoder gives highest priority to I3, lowest to I0. Outputs binary code (Y1,Y0) of highest priority active input, with V indicating validity.'
+                }
+            };
+            
+            if (info[type]) {
+                title.textContent = info[type].title;
+                explanation.textContent = info[type].explanation;
+            }
+        }
+
+        function getCircuitTitle(type) {
+            const titles = {
+                'mux2': '2:1 Multiplexer Circuit',
+                'mux4': '4:1 Multiplexer Circuit',
+                'decoder': '2-to-4 Decoder Circuit',
+                'demux': '1:2 Demultiplexer Circuit',
+                'decoder3x8': '3-to-8 Decoder Circuit',
+                'priority-encoder': 'Priority Encoder Circuit'
+            };
+            return titles[type] || 'Circuit Diagram';
+        }
+
+        function animateCircuit() {
+            if (isCircuitAnimating) {
+                stopAnimation();
+                return;
+            }
+            
+            if (!currentCircuitType) return;
+            
+            isCircuitAnimating = true;
+            const animateBtn = document.getElementById('animate-circuit-btn');
+            animateBtn.innerHTML = '<i class="fas fa-stop-circle me-2"></i>Stop Animation';
+            
+            document.getElementById('animation-progress-container').style.display = 'block';
+            
+            generateAnimationData();
+            startAnimation();
+        }
+
+        function generateAnimationData() {
+            animationData = [];
+            
+            switch(currentCircuitType) {
+                case 'mux2':
+                    for (let i0 = 0; i0 < 2; i0++) {
+                        for (let i1 = 0; i1 < 2; i1++) {
+                            for (let s = 0; s < 2; s++) {
+                                const output = s === 0 ? i0 : i1;
+                                animationData.push({
+                                    inputs: [i0, i1, s],
+                                    output: output,
+                                    description: `I0=${i0}, I1=${i1}, S=${s} → Y=${output}`
+                                });
+                            }
+                        }
+                    }
+                    break;
+                    
+                case 'mux4':
+                    for (let s1 = 0; s1 < 2; s1++) {
+                        for (let s0 = 0; s0 < 2; s0++) {
+                            const select = (s1 << 1) | s0;
+                            for (let i = 0; i < 4; i++) {
+                                const inputs = [0, 0, 0, 0, s0, s1];
+                                inputs[select] = i;
+                                const output = i;
+                                animationData.push({
+                                    inputs: inputs,
+                                    output: output,
+                                    description: `S1S0=${s1}${s0}, I${select}=${i} → Y=${output}`
+                                });
+                            }
+                        }
+                    }
+                    break;
+                    
+                case 'decoder':
+                    for (let e = 0; e < 2; e++) {
+                        for (let a = 0; a < 2; a++) {
+                            for (let b = 0; b < 2; b++) {
+                                const select = (a << 1) | b;
+                                const outputs = [0, 0, 0, 0];
+                                if (e === 1) outputs[3 - select] = 1;
+                                animationData.push({
+                                    inputs: [a, b, e],
+                                    outputs: outputs,
+                                    description: `E=${e}, A=${a}, B=${b} → D${3-select}=${e===1?1:0}`
+                                });
+                            }
+                        }
+                    }
+                    break;
+                    
+                case 'demux':
+                    for (let i = 0; i < 2; i++) {
+                        for (let s = 0; s < 2; s++) {
+                            let y1 = 0, y0 = 0;
+                            if (s === 0) y0 = i;
+                            else y1 = i;
+                            animationData.push({
+                                inputs: [i, s],
+                                outputs: [y0, y1],
+                                description: `I=${i}, S=${s} → Y0=${y0}, Y1=${y1}`
+                            });
+                        }
+                    }
+                    break;
+                    
+                case 'decoder3x8':
+                    for (let e = 0; e < 2; e++) {
+                        for (let a = 0; a < 2; a++) {
+                            for (let b = 0; b < 2; b++) {
+                                for (let c = 0; c < 2; c++) {
+                                    const select = (a << 2) | (b << 1) | c;
+                                    const outputs = [0, 0, 0, 0, 0, 0, 0, 0];
+                                    if (e === 1) outputs[7 - select] = 1;
+                                    animationData.push({
+                                        inputs: [a, b, c, e],
+                                        outputs: outputs,
+                                        description: `E=${e}, A=${a}, B=${b}, C=${c} → D${7-select}=${e===1?1:0}`
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    break;
+                    
+                case 'priority-encoder':
+                    for (let i0 = 0; i0 < 2; i0++) {
+                        for (let i1 = 0; i1 < 2; i1++) {
+                            for (let i2 = 0; i2 < 2; i2++) {
+                                for (let i3 = 0; i3 < 2; i3++) {
+                                    let activeInput = -1;
+                                    for (let i = 3; i >= 0; i--) {
+                                        if ([i3, i2, i1, i0][3-i] === 1) {
+                                            activeInput = i;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    let y1 = 0, y0 = 0, v = 0;
+                                    if (activeInput >= 0) {
+                                        y1 = (activeInput >> 1) & 1;
+                                        y0 = activeInput & 1;
+                                        v = 1;
+                                    }
+                                    
+                                    animationData.push({
+                                        inputs: [i0, i1, i2, i3],
+                                        outputs: [y0, y1, v],
+                                        description: `I3=${i3}, I2=${i2}, I1=${i1}, I0=${i0} → Y1=${y1}, Y0=${y0}, V=${v}`
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    break;
+            }
+            
+            totalAnimationSteps = animationData.length;
+            currentAnimationStep = 0;
+        }
+
+        function startAnimation() {
+            if (currentAnimationStep >= totalAnimationSteps) {
+                stopAnimation();
+                return;
+            }
+            
+            const stepData = animationData[currentAnimationStep];
+            
+            circuitInputs = [...stepData.inputs];
+            
+            for (let i = 0; i < circuitInputs.length; i++) {
+                const toggle = document.getElementById(`toggle-${i}`);
+                if (toggle) toggle.checked = circuitInputs[i] === 1;
+                
+                const label = document.getElementById(`toggle-label-${i}`);
+                if (label) label.textContent = circuitInputs[i];
+                
+                const inputNode = document.getElementById(`input-${i}`);
+                if (inputNode) inputNode.classList.toggle('active', circuitInputs[i] === 1);
+            }
+            
+            calculateCircuitOutput();
+            
+            updateTruthTableHighlight(currentAnimationStep);
+            
+            const progress = ((currentAnimationStep + 1) / totalAnimationSteps) * 100;
+            document.getElementById('animation-progress').value = progress;
+            document.getElementById('progress-percent').textContent = Math.round(progress) + '%';
+            document.getElementById('current-step').textContent = `Step ${currentAnimationStep + 1}/${totalAnimationSteps}`;
+            
+            currentAnimationStep++;
+            
+            if (currentAnimationStep < totalAnimationSteps) {
+                animationInterval = setTimeout(startAnimation, animationSpeed);
+            } else {
+                stopAnimation();
+            }
+        }
+
+        function stopAnimation() {
+            isCircuitAnimating = false;
+            clearTimeout(animationInterval);
+            
+            const animateBtn = document.getElementById('animate-circuit-btn');
+            animateBtn.innerHTML = '<i class="fas fa-play-circle me-2"></i>Animate Circuit';
+            
+            document.getElementById('animation-progress-container').style.display = 'none';
+            currentAnimationStep = 0;
+        }
+
+        function resetCircuit() {
+            stopAnimation();
+            
+            for (let i = 0; i < circuitInputs.length; i++) {
+                circuitInputs[i] = 0;
+                
+                const toggle = document.getElementById(`toggle-${i}`);
+                if (toggle) toggle.checked = false;
+                
+                const label = document.getElementById(`toggle-label-${i}`);
+                if (label) label.textContent = '0';
+                
+                const inputNode = document.getElementById(`input-${i}`);
+                if (inputNode) inputNode.classList.remove('active');
+            }
+            
+            document.querySelectorAll('.output-node').forEach(node => {
+                node.classList.remove('active');
+            });
+            
+            document.getElementById('circuit-output').textContent = '-';
+            document.getElementById('circuit-truth-table-container').style.display = 'none';
+            
+            const rows = document.querySelectorAll('#circuit-truth-table tr');
+            rows.forEach(row => row.classList.remove('highlight-row'));
+        }
+
+        function toggleTruthTable() {
+            const tableContainer = document.getElementById('circuit-truth-table-container');
+            if (tableContainer.style.display === 'none') {
+                generateTruthTable();
+                tableContainer.style.display = 'block';
+            } else {
+                tableContainer.style.display = 'none';
+            }
+        }
+
+        function generateTruthTable() {
+            const table = document.getElementById('circuit-truth-table');
+            table.innerHTML = '';
+            
+            if (!currentCircuitType) return;
+            
+            switch(currentCircuitType) {
+                case 'mux2':
+                    generateMUX2TruthTable(table);
+                    break;
+                case 'mux4':
+                    generateMUX4TruthTable(table);
+                    break;
+                case 'decoder':
+                    generateDecoderTruthTable(table);
+                    break;
+                case 'demux':
+                    generateDEMUXTruthTable(table);
+                    break;
+                case 'decoder3x8':
+                    generateDecoder3x8TruthTable(table);
+                    break;
+                case 'priority-encoder':
+                    generatePriorityEncoderTruthTable(table);
+                    break;
+            }
+        }
+
+        function generateMUX2TruthTable(table) {
+            const header = table.insertRow();
+            ['I0', 'I1', 'S', 'Y'].forEach(text => {
+                const th = document.createElement('th');
+                th.textContent = text;
+                header.appendChild(th);
+            });
+            
+            for (let i0 = 0; i0 < 2; i0++) {
+                for (let i1 = 0; i1 < 2; i1++) {
+                    for (let s = 0; s < 2; s++) {
+                        const row = table.insertRow();
+                        const output = s === 0 ? i0 : i1;
+                        
+                        [i0, i1, s, output].forEach(value => {
+                            const cell = row.insertCell();
+                            cell.textContent = value;
+                            if (value === 1) cell.className = 'active-cell';
+                        });
+                    }
+                }
+            }
+        }
+
+        function generateMUX4TruthTable(table) {
+            const header = table.insertRow();
+            ['S1', 'S0', 'I0', 'I1', 'I2', 'I3', 'Y'].forEach(text => {
+                const th = document.createElement('th');
+                th.textContent = text;
+                header.appendChild(th);
+            });
+            
+            for (let s1 = 0; s1 < 2; s1++) {
+                for (let s0 = 0; s0 < 2; s0++) {
+                    for (let selectedInput = 0; selectedInput < 4; selectedInput++) {
+                        const row = table.insertRow();
+                        const inputs = [0, 0, 0, 0];
+                        inputs[selectedInput] = 1;
+                        const output = 1;
+                        
+                        [s1, s0, ...inputs, output].forEach(value => {
+                            const cell = row.insertCell();
+                            cell.textContent = value;
+                            if (value === 1) cell.className = 'active-cell';
+                        });
+                    }
+                }
+            }
+        }
+
+        function generateDecoderTruthTable(table) {
+            const header = table.insertRow();
+            ['E', 'A', 'B', 'D3', 'D2', 'D1', 'D0'].forEach(text => {
+                const th = document.createElement('th');
+                th.textContent = text;
+                header.appendChild(th);
+            });
+            
+            for (let e = 0; e < 2; e++) {
+                for (let a = 0; a < 2; a++) {
+                    for (let b = 0; b < 2; b++) {
+                        const row = table.insertRow();
+                        const select = (a << 1) | b;
+                        const outputs = [0, 0, 0, 0];
+                        if (e === 1) outputs[3 - select] = 1;
+                        
+                        [e, a, b, outputs[3], outputs[2], outputs[1], outputs[0]].forEach(value => {
+                            const cell = row.insertCell();
+                            cell.textContent = value;
+                            if (value === 1) cell.className = 'active-cell';
+                        });
+                    }
+                }
+            }
+        }
+
+        function generateDEMUXTruthTable(table) {
+            const header = table.insertRow();
+            ['I', 'S', 'Y0', 'Y1'].forEach(text => {
+                const th = document.createElement('th');
+                th.textContent = text;
+                header.appendChild(th);
+            });
+            
+            for (let i = 0; i < 2; i++) {
+                for (let s = 0; s < 2; s++) {
+                    const row = table.insertRow();
+                    let y0 = 0, y1 = 0;
+                    if (s === 0) y0 = i;
+                    else y1 = i;
+                    
+                    [i, s, y0, y1].forEach(value => {
+                        const cell = row.insertCell();
+                        cell.textContent = value;
+                        if (value === 1) cell.className = 'active-cell';
+                    });
+                }
+            }
+        }
+
+        function generateDecoder3x8TruthTable(table) {
+            const header = table.insertRow();
+            ['E', 'A', 'B', 'C', 'D7', 'D6', 'D5', 'D4', 'D3', 'D2', 'D1', 'D0'].forEach(text => {
+                const th = document.createElement('th');
+                th.textContent = text;
+                header.appendChild(th);
+            });
+            
+            for (let e = 0; e < 2; e++) {
+                for (let a = 0; a < 2; a++) {
+                    for (let b = 0; b < 2; b++) {
+                        for (let c = 0; c < 2; c++) {
+                            const row = table.insertRow();
+                            const select = (a << 2) | (b << 1) | c;
+                            const outputs = [0, 0, 0, 0, 0, 0, 0, 0];
+                            if (e === 1) outputs[7 - select] = 1;
+                            
+                            [e, a, b, c, outputs[7], outputs[6], outputs[5], outputs[4], 
+                             outputs[3], outputs[2], outputs[1], outputs[0]].forEach(value => {
+                                const cell = row.insertCell();
+                                cell.textContent = value;
+                                if (value === 1) cell.className = 'active-cell';
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        function generatePriorityEncoderTruthTable(table) {
+            const header = table.insertRow();
+            ['I3', 'I2', 'I1', 'I0', 'Y1', 'Y0', 'V'].forEach(text => {
+                const th = document.createElement('th');
+                th.textContent = text;
+                header.appendChild(th);
+            });
+            
+            for (let i3 = 0; i3 < 2; i3++) {
+                for (let i2 = 0; i2 < 2; i2++) {
+                    for (let i1 = 0; i1 < 2; i1++) {
+                        for (let i0 = 0; i0 < 2; i0++) {
+                            const row = table.insertRow();
+                            let activeInput = -1;
+                            for (let i = 3; i >= 0; i--) {
+                                if ([i3, i2, i1, i0][3-i] === 1) {
+                                    activeInput = i;
+                                    break;
+                                }
+                            }
+                            
+                            let y1 = 0, y0 = 0, v = 0;
+                            if (activeInput >= 0) {
+                                y1 = (activeInput >> 1) & 1;
+                                y0 = activeInput & 1;
+                                v = 1;
+                            }
+                            
+                            [i3, i2, i1, i0, y1, y0, v].forEach(value => {
+                                const cell = row.insertCell();
+                                cell.textContent = value;
+                                if (value === 1) cell.className = 'active-cell';
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        function updateTruthTableHighlight(step) {
+            const rows = document.querySelectorAll('#circuit-truth-table tr');
+            rows.forEach(row => row.classList.remove('highlight-row'));
+            
+            if (rows.length > step + 1) {
+                rows[step + 1].classList.add('highlight-row');
+                rows[step + 1].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    </script>
+</body>
+</html>
